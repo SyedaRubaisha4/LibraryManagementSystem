@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using LibraryManagementSystem.Data;
-using LibraryManagementSystem.Models;
+using Models.DTOModel;
+using Models.DBModel;
 using System.Text.Json;
 using System.Net.Mail;
 using System.Net;

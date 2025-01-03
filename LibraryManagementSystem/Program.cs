@@ -1,9 +1,9 @@
 using LibraryManagementSystem.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using LibraryManagementSystem.Models;
 using System;
-
+using Models.DTOModel;
+using Models.DBModel;
 namespace LibraryManagementSystem
 {
     public class Program

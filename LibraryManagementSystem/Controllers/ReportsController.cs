@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using LibraryManagementSystem.Data;
 using System.Threading.Tasks;
-using LibraryManagementSystem.Models;
+using Models.DTOModel;
+using Models.DBModel;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
