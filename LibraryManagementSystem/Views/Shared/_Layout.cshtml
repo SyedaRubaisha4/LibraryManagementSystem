@@ -68,6 +68,10 @@
                            class="nav-item nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Book" && ViewContext.RouteData.Values["Action"].ToString() == "Userpayments" ? "active" : "")">
                             <i class="bi bi-wallet2 me-2"></i>All Payments
                         </a>
+                         <a asp-action="index" asp-controller="Category"
+                           class="nav-item nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Category" && ViewContext.RouteData.Values["Action"].ToString() == "Index" ? "active" : "")">
+                            <i class="bi bi-wallet2 me-2"></i>Books Category
+                        </a>
       <div class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                 <i class="bi bi-card-checklist me-2"></i>Reports

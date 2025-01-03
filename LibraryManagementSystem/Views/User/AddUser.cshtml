@@ -180,7 +180,6 @@
                 <table class="table table-striped table-responsive">
                     <thead>
                         <tr>
-
                             <td style=" text-align: right; " colspan="10">
                                 <form method="get" asp-action="AddUser" asp-controller="User" id="searchForm" class="d-flex justify-content-end">
                                     <input type="text" name="searchQuery" id="searchBox" class="form-control me-1" placeholder="Search..." style="width: 20%;" value="@ViewBag.SearchQuery">
@@ -188,7 +187,6 @@
                                 </form>
                             </td>
                         </tr>
-
                         <tr>
                             <th scope="col">Image</th>
 
@@ -201,7 +199,6 @@
                                     }
                                 </a>
                             </th>
-
                             <th scope="col">
                                     <a asp-action="AddUser" class="text-secondary" asp-route-sortBy="LastName" asp-route-isAscending="@(ViewBag.SortBy == "LastName" ? !ViewBag.IsAscending : true)" style="display: inline-flex; align-items: center; white-space: nowrap;text-decoration:none;color:black">
                                     Last Name
@@ -211,7 +208,6 @@
                                     }
                                 </a>
                             </th>
-
                             <th scope="col">
                                     <a asp-action="AddUser" class="text-secondary" asp-route-sortBy="Age" asp-route-isAscending="@(ViewBag.SortBy == "Age" ? !ViewBag.IsAscending : true)" style="display: inline-flex; align-items: center; white-space: nowrap;text-decoration:none;color:black">
                                     Age
@@ -221,7 +217,6 @@
                                     }
                                 </a>
                             </th>
-
                             <th scope="col">BirthDate</th>
                             <th scope="col">Password</th>
                             <th scope="col">Email</th>
@@ -229,9 +224,6 @@
                             <th scope="col">Roll</th>
                             <th scope="col">Actions</th>
                         </tr>
-
-
-
                     </thead>
 
                     <tbody>
