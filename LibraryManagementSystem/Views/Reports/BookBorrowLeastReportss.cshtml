@@ -1,0 +1,178 @@
+﻿@{
+    ViewData["Title"] = "Least Reserved Books";
+}
+
+@model LibraryManagementSystem.Models.BookBorrowPagesViewModel
+
+
+<script src="../../plugins/jquery/jquery.min.js"></script>
+<script src="../../plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../../plugins/sweetalert2/sweetalert2.min.js"></script>
+<script src="../../plugins/toastr/toastr.min.js"></script>
+<script src="../../dist/js/adminlte.min.js"></script>
+<script src="../../dist/js/demo.js"></script>
+
+<div class="px-2 py-2 mb-2">
+    <div class=" mb-3">
+        <h1 class="text-dark d-flex justify-content-center">Least Reserved Books</h1>
+    </div>
+    <div class="row px-2">
+        <div class="col-md-12">
+            <div class="">
+                <div class="">
+                    <div class="card-tools py-2 w-100">
+                        <form method="get" action="@Url.Action("BookBorrowLeastReportss", "Reports")" class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 me-2">
+                                    <label for="startDate" class="form-label">Start Date</label>
+                                    <input type="date" id="startDate" name="startDate" class="form-control" value="@Context.Request.Query["startDate"]" />
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 me-2">
+                                    <label for="endDate" class="form-label">End Date</label>
+                                    <input type="date" id="endDate" name="endDate" class="form-control" value="@Context.Request.Query["endDate"]" />
+                                </div>
+                                <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 me-2">
+                                    <label for="pageSize" class="form-label">Page Size</label>
+                                    <select name="pageSize" class="form-select" asp-items="@((List<SelectListItem>)ViewData["Options"])">
+                                        <option value="">Choose</option>
+                                    </select>
+                                </div>
+                                <div class="d-flex justify-content-around align-items-center">
+                                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 ">
+                                        <label for="pageSize" class="form-label">Search</label>
+
+                                        <button type="submit" class="btn btn-primary " style="background-color:darkblue;color:white;"><i class="bi bi-search "></i></button>
+                                    </div>
+                                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2  ms-1">
+                                        <label for="pageSize" class="form-label">Clear</label>
+
+                                        <button type="button" id="resetButton" class="btn  " style="background-color:#F7D6D0;color:black; "><i class="bi bi-x-circle"></i></button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </form>
+                    </div>
+
+                    @if (Model != null && Model.Data != null && Model.Data.Any())
+
+                    {
+
+                        <div class="px-2 table-responsive p-0">
+                            <table class="table table-bordered text-nowrap">
+                                <thead class="">
+                                    <tr>
+                                        <th>Book Title</th>
+                                        <th>Author</th>
+                                        <th>Total Reservations</th>
+                                        <th>Last Reserved Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Data)
+                                    {
+                                        <tr>
+                                            <td>@item.BookTitle</td>
+                                            <td>@item.Author</td>
+                                            <td>@item.TotalBorrows</td>
+                                            <td>@item.LastBorrowedDate</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <div class ="d-flex justify-content-end">
+                                <ul class="pagination">
+                                    <!-- First Page Button -->
+                                    <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                                        <a class="page-link" href="@Url.Action("BookBorrowLeastReportss", new { pageNumber = 1, pageSize = Model.PageSize })">1</a>
+                                    </li>
+
+                                    <!-- Previous Page Button -->
+                                    @if (Model.PageNumber > 1)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="@Url.Action("BookBorrowLeastReportss", new { pageNumber = Model.PageNumber - 1, pageSize = Model.PageSize })">Prev</a>
+                                        </li>
+                                    }
+
+                                    <!-- Page Numbers (Maximum 5 pages around the current page) -->
+                                    @{
+                                        int startPage = Math.Max(2, Model.PageNumber - 2);
+                                        int endPage = Math.Min(Model.TotalPages - 1, Model.PageNumber + 2);
+
+                                        for (int i = startPage; i <= endPage; i++)
+                                        {
+                                            <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                                                <a class="page-link" href="@Url.Action("BookBorrowLeastReportss", new { pageNumber = i, pageSize = Model.PageSize })">@i</a>
+                                            </li>
+                                        }
+                                    }
+
+                                    <!-- Next Page Button -->
+                                    @if (Model.PageNumber < Model.TotalPages)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" href="@Url.Action("BookBorrowLeastReportss", new { pageNumber = Model.PageNumber + 1, pageSize = Model.PageSize })">Next</a>
+                                        </li>
+                                    }
+
+                                    <!-- Last Page Button -->
+                                    <li class="page-item @(Model.PageNumber == Model.TotalPages ? "disabled" : "")">
+                                        <a class="page-link" href="@Url.Action("BookBorrowLeastReportss", new { pageNumber = Model.TotalPages, pageSize = Model.PageSize })">@Model.TotalPages</a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center" role="alert">
+                            No data available for the selected date range.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+        // Listen for changes on the startDate field
+        $('#startDate').on('change', function () {
+            var startDate = $(this).val();
+
+            // If startDate is selected, set the min attribute for endDate and enable it
+            if (startDate) {
+                $('#endDate').attr('min', startDate).prop('disabled', false);
+            } else {
+                // If no startDate is selected, disable endDate
+                $('#endDate').prop('disabled', true);
+            }
+        });
+
+        // On page load, check if the startDate has a value, then update endDate accordingly
+        var startDate = $('#startDate').val();
+        if (startDate) {
+            $('#endDate').attr('min', startDate).prop('disabled', false);
+        }
+    });
+</script>
+
+
+<script>
+    $(document).ready(function () {
+        // Reset button functionality
+        $('#resetButton').on('click', function () {
+            // Redirect to the action without any filters
+            window.location.href = '@Url.Action("BookBorrowLeastReportss", "Reports")';
+        });
+    });
+</script>
+
+

@@ -1,0 +1,28 @@
+﻿@model IEnumerable<LibraryManagementSystem.Models.PaymentInfoViewModel>
+
+<table class="table table-striped ">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Book Name</th>
+            <th>Payment Status</th>
+            <th>Payment Amount</th>
+            <th>Payment Date</th>
+            <th>My Payment</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Firstname</td>
+                <td>@item.BookName</td>
+                <td>@item.PaymentStatus</td>
+                <td>$@item.PaymentAmount</td>
+                <td>@item.PaymentDate.ToString("MM/dd/yyyy")</td>
+                <td> $@item.AdminPayments</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

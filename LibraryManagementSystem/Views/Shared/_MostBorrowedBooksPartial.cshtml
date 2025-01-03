@@ -1,0 +1,43 @@
+﻿@if (Model != null && Model.Data.Any())
+{
+    <div class="px-2 table-responsive p-0">
+        <table class="table table-bordered text-nowrap">
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Author</th>
+                    <th>Total Reservations</th>
+                    <th>Last Reserved Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Data)
+                {
+                    <tr>
+                        <td>@item.BookTitle</td>
+                        <td>@item.Author</td>
+                        <td>@item.TotalBorrows</td>
+                        <td>@item.LastBorrowedDate</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <nav>
+        <ul class="pagination">
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                    <a class="page-link" href="#" data-page="@i">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+else
+{
+    <div class="alert alert-info text-center" role="alert">
+        No data available for the selected date range.
+    </div>
+}

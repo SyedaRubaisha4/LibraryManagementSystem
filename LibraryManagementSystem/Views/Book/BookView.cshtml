@@ -1,0 +1,385 @@
+﻿@{
+    Layout = null;
+}
+@model IEnumerable<LibraryManagementSystem.Models.BookDetails>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - LibraryManagementSystem</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="~/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Icon Font Stylesheet -->
+    <link href="~/fontawesome-free-6.7.2-web/css/all.min.css" rel="stylesheet" />
+    <link href="~/bootstrap-icons-1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="~/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+    <link href="~/lib/owlcarousel/assets/owl.carousel.css" rel="stylesheet" />
+    <link href="~/lib/owlcarousel/assets/owl.theme.green.css" rel="stylesheet" />
+    <link href="~/lib/owlcarousel/assets/owl.theme.green.min.css" rel="stylesheet" />
+    <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="~/LibraryManagementSystem.styles.css" asp-append-version="true" />
+<style>
+        #card-element div {
+            display: block;
+            margin-bottom: 20px; /* Add spacing between rows */
+        }
+</style>
+</head>
+<body>
+    <div class="container-fluid position-relative bg-white d-flex p-0 "
+    <header>
+        <div class="sidebar">
+            <nav class="navbar bg-light navbar-light ">
+              
+              <div class="d-flex align-items-center ms-4 mt-5 mb-4">
+                            <div class="position-relative">
+                                <img class="rounded-circle"src="~/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
+                            </div>
+                            <div class="ms-3">
+
+                                <a href="/user/userinfo"><span>My Profile</span></a>
+                            </div>
+                          </div>
+               <div class="navbar-nav w-100">
+                 <a asp-action="BookView" asp-controller="Book"
+                   class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Book" ? "active" : "")">
+                   <i class="fa fa-keyboard me-2"></i>All Books
+                </a>
+            <a asp-action="Show" asp-controller="Book"
+               class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Show" ? "active" : "")">
+                <i class="fa fa-keyboard me-2"></i>My Books
+            </a>
+             <a asp-action="Logouts" asp-controller="Home"
+               class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Logouts" ? "active" : "")">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Logout
+            </a>
+
+
+                </div>
+            </nav>
+        </div>
+     
+    </header>
+      <div class="content">
+           <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a href="#" class="sidebar-toggler flex-shrink-0 disabled" id="sidebar-toggler" aria-disabled="true">
+                    <i class="fa fa-bars"></i>
+                </a>
+
+                <a class="navbar-brand" asp-area="" asp-action="BookView" asp-controller="Book">LibraryManagementSystem</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+               <a asp-action="BookView" asp-controller="Book" class="navbar-brand d-flex d-lg-none me-4">
+                   
+                </a>
+
+
+
+
+                </div>
+            </nav>
+        <main role="main" class="pb-3">
+            
+
+            <div id="paymentSuccessToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true"  data-bs-autohide="true">
+            <div class="toast-header">
+                <strong class="me-auto">Payment Status</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" style="background-color: green; color: white;">
+                Payment was successful!
+            </div>
+            </div>
+
+                 
+                <div class="row g-4">
+        <div class="col-sm-12 col-xl-12">
+            <div class="bg-light rounded h-100 p-4">
+                <h6 class="mb-4">Books</h6>
+             <table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Author</th>
+            <th scope="col">Created At</th>
+            <th scope="col">Purchasing</th>
+        </tr>
+    </thead>
+    <tbody>
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <th scope="col">#</th>
+                    <td>@item.BookName</td>
+                    <td>@item.Description</td>
+                    <td>@item.AuthorName</td>
+                    <td>@item.BookCreationDate.ToString("yyyy-MM-dd")</td>
+                    <td>
+                              <!-- Reserve Button to Open Reserve Modal -->
+    <button type="button" class="btn @(item.IsReserved ? "btn-secondary" : "btn-success")"
+        data-bs-toggle="modal" data-bs-target="#actionModal-@item.Id">
+        Reserve
+    </button>
+
+    <!-- Reserve Modal (for confirming reservation) -->
+    <div class="modal fade" id="actionModal-@item.Id" tabindex="-1" aria-labelledby="modalLabel-@item.Id" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="modalLabel-@item.Id">Reserve Book</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reserveForm-@item.Id" class="reserve-form" data-id="@item.Id" method="post" asp-action="UserBooks" asp-controller="Book">
+                        <input type="hidden" name="Id" value="@item.Id" />
+                        Are you sure to reserve this book <strong>@item.BookName</strong>?
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Yes, Reserve</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+       
+
+
+                <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="paymentModalLabel"> Payment</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                       <form id="paymentForm">
+        <div class="mb-3">
+            <label class="form-label">Card Number</label>
+            <div id="card-number-element" class="stripe-input"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Expiry Date</label>
+            <div id="card-expiry-element" class="stripe-input"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">CVC</label>
+            <div id="card-cvc-element" class="stripe-input"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">ZIP Code</label>
+            <div id="card-zip-element" class="stripe-input"></div>
+        </div>
+        <div id="card-errors" class="text-danger"></div>
+        <div class="w-100">
+
+            <button type="submit" class="btn btn-success w-100 " id="submitButton">Pay</button>
+            
+        </div>
+    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</td>
+                </tr>
+                }
+                 
+    </tbody>
+</table>
+
+            </div>
+        </div>
+    </div>
+                 </div>
+        </main>
+    </div>
+
+
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="lib/chart/chart.min.js"></script>
+    <script src="lib/easing/easing.min.js"></script>
+    <script src="lib/waypoints/waypoints.min.js"></script>
+    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="lib/tempusdominus/js/moment.min.js"></script>
+    <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+    <script src="~/lib/chart/chart.min.js"></script>
+    <script src="~/lib/easing/easing.js"></script>
+    <script src="~/lib/owlcarousel/owl.carousel.js"></script>
+    <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="~/lib/waypoints/waypoints.min.js"></script>
+    <script src="~/lib/easing/easing.min.js"></script>
+    <script>
+        document.querySelectorAll('.reserve-form').forEach((form) => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // Prevent the form's default submission
+
+                // Get the book ID from the data-id attribute
+                const bookId = this.getAttribute('data-id');
+
+                // Get the Reserve Modal instance
+                const reserveModal = bootstrap.Modal.getInstance(document.getElementById(`actionModal-${bookId}`));
+
+                // Add event listener to Reserve Modal's hidden event
+                document.getElementById(`actionModal-${bookId}`).addEventListener('hidden.bs.modal', function () {
+                    // Once Reserve Modal is completely hidden, open the Payment Modal
+                    const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+                    paymentModal.show();
+                });
+
+                // Close the Reserve Modal
+                reserveModal.hide();
+            });
+        });
+    </script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const stripe = Stripe('pk_test_51QZC9RGL2s0B30oiUrnxFHhGYtRYVYrnRICibMOTuWpAd7RSV2EgykzuK211Fd6yOFn3XPK3VhHV08Mr2OLB7p5D00UCJyG7hN'); // Your public key
+            const elements = stripe.elements();
+            const style = {
+                base: {
+                    fontSize: '16px',
+                    color: '#32325d'
+                }
+            };
+
+            function createStripeElements() {
+                // Define element containers
+                const cardNumberElementContainer = document.getElementById('card-number-element');
+                const cardExpiryElementContainer = document.getElementById('card-expiry-element');
+                const cardCvcElementContainer = document.getElementById('card-cvc-element');
+                const cardZipElementContainer = document.getElementById('card-zip-element');
+
+                // Clear any previous content in case of reinitialization
+                cardNumberElementContainer.innerHTML = '';
+                cardExpiryElementContainer.innerHTML = '';
+                cardCvcElementContainer.innerHTML = '';
+                cardZipElementContainer.innerHTML = '';
+
+                // Create and mount Stripe elements
+                const cardNumber = elements.create('cardNumber', { style });
+                cardNumber.mount(cardNumberElementContainer);
+
+                const cardExpiry = elements.create('cardExpiry', { style });
+                cardExpiry.mount(cardExpiryElementContainer);
+
+                const cardCvc = elements.create('cardCvc', { style });
+                cardCvc.mount(cardCvcElementContainer);
+
+                const postalCode = elements.create('postalCode', { style });
+                postalCode.mount(cardZipElementContainer);
+            }
+
+            function openPaymentModal() {
+                const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+                paymentModal.show();
+
+                // Call the function to create and mount Stripe elements when the modal is opened
+                createStripeElements();
+            }
+
+            // Function to show the Bootstrap toast for payment success
+            function showToast() {
+                const toast = new bootstrap.Toast(document.getElementById('paymentSuccessToast'));
+                toast.show();
+            }
+
+            document.querySelectorAll('.reserve-form').forEach(form => {
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+
+                    const bookId = form.getAttribute('data-id');
+
+                    const response = await fetch('/Book/UserBooks', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ Id: bookId })
+                    });
+
+                    if (response.ok) {
+                        const reserveModal = bootstrap.Modal.getInstance(document.getElementById('actionModal-' + bookId));
+                        reserveModal.hide();
+
+                        setTimeout(openPaymentModal, 300); // Open payment modal after some delay
+
+                        document.getElementById('paymentForm').addEventListener('submit', async (event) => {
+                            event.preventDefault();
+
+                            const { paymentMethod, error } = await stripe.createPaymentMethod({
+                                type: 'card',
+                                card: elements.getElement('cardNumber'), // Use the card number for the payment
+                            });
+
+                            if (error) {
+                                document.getElementById('card-errors').textContent = error.message;
+                            } else {
+                                const paymentResponse = await fetch('/Book/CreateCheckoutSession', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        paymentMethodId: paymentMethod.id,
+                                        amount: 100,
+                                        Id: bookId
+                                    })
+                                });
+
+                                const paymentResult = await paymentResponse.json();
+
+                                // Instead of alert, trigger the toast
+                                showToast();
+
+                                const paymentModalElement = document.getElementById('paymentModal');
+                                const paymentModalInstance = bootstrap.Modal.getInstance(paymentModalElement);
+                                paymentModalInstance.hide();
+
+                                const backdrop = document.querySelector('.modal-backdrop');
+                                if (backdrop) {
+                                    backdrop.classList.remove('show');
+                                    setTimeout(() => backdrop.remove(), 300);
+                                }
+
+                                window.location.href = '/Book/BookView';
+                            }
+                        });
+                    } else {
+                        document.getElementById('card-errors').textContent = 'There was an issue reserving the book. Please try again.';
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+
+
+
+</body>
+</html>

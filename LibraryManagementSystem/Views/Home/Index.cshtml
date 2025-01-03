@@ -1,0 +1,53 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+ <h1>
+     Welcome 
+ </h1>
+ @model IEnumerable<LibraryManagementSystem.Models.Book>
+<div class="container-fluid pt-4 px-4">
+    <div class="row g-4">
+        <div class="col-sm-12 col-xl-12">
+            <div class="bg-light rounded h-100 p-4">
+                <h6 class="mb-4">Accented Table</h6>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+
+                            <th scope="col">Name</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Author</th>
+                            <th scope="col"> Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <td>@item.Name</td>
+                                <td>@item.Description</td>
+                                <td>@item.Author</td>
+                                <td>@item.BookCreationDate</td>
+
+                                <td class="d-flex justify-content-evenly">
+                                    <form asp-action="Del" asp-controller="Book" method="post">
+                                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i></button>
+                                        <input type="hidden" name="Id" value="@item.Id" />
+                                    </form>
+                                    <form asp-action="Up" asp-controller="Book" method="post">
+                                        <button type="submit" class="btn btn-success"><i class="bi bi-pencil"></i></button>
+                                        <input type="hidden" name="Id" value="@item.Id" />
+                                    </form>
+
+                                </td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
