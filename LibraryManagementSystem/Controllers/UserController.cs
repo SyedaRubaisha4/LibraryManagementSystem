@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using LibraryManagementSystem.Data;
-using Models.DTOModel;
-using Models.DBModel;
-using System.Text.Json;
-using System.Net.Mail;
-using System.Net;
-using System.IO;
+﻿using LibraryManagementSystem.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Models.DBModel;
+using Models.DTOModel;
+using System.Net;
+using System.Net.Mail;
+using System.Text.Json;
 namespace LibraryManagementSystem.Controllers
 {
     public class UserController : Controller
@@ -17,15 +15,19 @@ namespace LibraryManagementSystem.Controllers
         private readonly EmailService _emailService;
         public UserController(ApplicationDbContext context, IConfiguration configuration, EmailService emailService)
         {
-            _configuration = configuration; 
+            _configuration = configuration;
             _emailService = emailService;
             _context = context;
         }
-       
-        public IActionResult AddUser(int page = 1, int pageSize = 3, string searchQuery = "", string sortBy = "Id", bool isAscending = true)
+
+        public IActionResult AddUser(int page = 1, int pageSize = 3, string searchQuery = "", string sortBy = "Id", bool isAscending = true, string universityFilter = "")
         {
             var query = _context.User.AsQueryable();
-
+            var universityList = _context.User
+      .Select(u => u.UniversityName)
+      .Distinct()
+      .ToList();
+            ViewBag.UniversityList = universityList;
             if (!string.IsNullOrEmpty(searchQuery))
             {
                 query = query.Where(u => u.FirstName.Contains(searchQuery) || u.LastName.Contains(searchQuery));
@@ -37,8 +39,13 @@ namespace LibraryManagementSystem.Controllers
                 "FirstName" => isAscending ? query.OrderBy(u => u.FirstName) : query.OrderByDescending(u => u.FirstName),
                 "LastName" => isAscending ? query.OrderBy(u => u.LastName) : query.OrderByDescending(u => u.LastName),
                 "Age" => isAscending ? query.OrderBy(u => u.Age) : query.OrderByDescending(u => u.Age),
-                _ => query.OrderByDescending(u => u.Id), 
+                _ => query.OrderByDescending(u => u.Id),
             };
+
+            if (!string.IsNullOrEmpty(universityFilter))
+            {
+                query = query.Where(u => u.UniversityName == universityFilter);
+            }
 
             var totalCount = query.Count();
             var users = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
@@ -75,13 +82,13 @@ namespace LibraryManagementSystem.Controllers
                                            join book in _context.Book on userBook.BookId equals book.Id
                                            join user in _context.User on userBook.UserId equals user.Id
                                            let daysReserved = EF.Functions.DateDiffDay(userBook.BookDateTime, DateTime.UtcNow)
-                                           where daysReserved >1
+                                           where daysReserved > 1
                                            group new
                                            {
                                                book.Name,
                                                userBook.BookDateTime,
                                                DaysReserved = daysReserved,
-                                               Fine = daysReserved * 5 
+                                               Fine = daysReserved * 5
                                            } by new
                                            {
                                                user.FirstName,
@@ -91,7 +98,7 @@ namespace LibraryManagementSystem.Controllers
                                            {
                                                FirstName = userGroup.Key.FirstName,
                                                Email = userGroup.Key.Email,
-                                               Books = userGroup.ToList(), 
+                                               Books = userGroup.ToList(),
                                                TotalFine = userGroup.Sum(b => b.Fine)
                                            }).ToList();
 
@@ -184,16 +191,16 @@ namespace LibraryManagementSystem.Controllers
             };
 
             var mailMessage = new MailMessage
-                {
+            {
                 From = new MailAddress(_configuration["EmailSettings:FromEmail"]),
                 Subject = subject,
-                    Body = body,
-                    IsBodyHtml = true
+                Body = body,
+                IsBodyHtml = true
             };
 
-                mailMessage.To.Add(toEmail);
+            mailMessage.To.Add(toEmail);
             smtpClient.Send(mailMessage);
-            
+
         }
         [HttpPost]
         public IActionResult Add(string FirstName, string LastName, string Age, string Gender, DateTime DateofBirth, string Password, string Email, IFormFile? Image)
@@ -270,7 +277,7 @@ namespace LibraryManagementSystem.Controllers
                 dateOfBirth = user.DateOfBirth.ToString("yyyy-MM-dd"),
                 gender = user.Gender,
                 password = user.Password,
-                profileImage = Url.Content("~/Image/" + user.ProfileImage), 
+                profileImage = Url.Content("~/Image/" + user.ProfileImage),
                 email = user.Email
             };
 
@@ -284,23 +291,23 @@ namespace LibraryManagementSystem.Controllers
             if (person != null)
             {
                 person.Status = UserStatus.Blocked.ToString();
-                Console.WriteLine(person.FirstName +" " + person.LastName+" ");
+                Console.WriteLine(person.FirstName + " " + person.LastName + " ");
                 _context.SaveChanges();
             }
             return RedirectToAction("AddUser");
         }
         public void DeleteFile(string fileName)
         {
-            
+
             string uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Image");
 
             string filePath = Path.Combine(uploadFolder, fileName);
             if (System.IO.File.Exists(filePath))
             {
                 System.IO.File.Delete(filePath);
-               
+
             }
-            
+
         }
 
         [HttpPost]
@@ -339,7 +346,7 @@ namespace LibraryManagementSystem.Controllers
                 user.ProfileImage = uniqueFileName;
             }
 
-           
+
             _context.SaveChanges();
 
             return RedirectToAction("AddUser");

@@ -1,19 +1,17 @@
-﻿using Azure.Core;
-using LibraryManagementSystem.Data;
-using Models.DTOModel;
-using Models.DBModel;
+﻿using LibraryManagementSystem.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
-using System.Text.Json;
 using Microsoft.Extensions.Options;
+using Models.DBModel;
+using Models.DTOModel;
+using QRCoder;
 using Stripe;
 using Stripe.Checkout;
 using System.Reflection.Metadata;
 using QRCoder;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using LibraryManagementSystem.Migrations;
+
+
 namespace LibraryManagementSystem.Controllers
 {
     public class BookController : Controller
@@ -60,23 +58,23 @@ namespace LibraryManagementSystem.Controllers
                 // Create QR code data from the input string
                 using (QRCodeData qrCodeData = qrCodeGenerator.CreateQrCode(data, QRCodeGenerator.ECCLevel.Q))
                 {
-                 
+
                     using (PngByteQRCode qrCode = new PngByteQRCode(qrCodeData))
                     {
-                        byte[] qrCodeImage = qrCode.GetGraphic(20); 
+                        byte[] qrCodeImage = qrCode.GetGraphic(20);
 
-                      
+
                         var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "BookQRCodes");
                         if (!Directory.Exists(directoryPath))
                         {
-                            Directory.CreateDirectory(directoryPath); 
+                            Directory.CreateDirectory(directoryPath);
                         }
 
                         // Generate a unique file name for the QR code
                         var qrCodeFileName = Guid.NewGuid().ToString() + ".png";
                         var qrCodePath = Path.Combine(directoryPath, qrCodeFileName);
 
-                         System.IO.File.WriteAllBytesAsync(qrCodePath, qrCodeImage);
+                        System.IO.File.WriteAllBytesAsync(qrCodePath, qrCodeImage);
 
                         return Convert.ToBase64String(qrCodeImage); ; // Return the file name to store in the database
                     }
@@ -103,7 +101,7 @@ namespace LibraryManagementSystem.Controllers
                     Currency = "usd",
                     PaymentMethod = request.PaymentMethodId,
                     Confirm = true,
-                    ReturnUrl = "https://localhost:7085/Book/BookView" 
+                    ReturnUrl = "https://localhost:7085/Book/BookView"
                 };
 
                 var service = new PaymentIntentService();
@@ -128,7 +126,7 @@ namespace LibraryManagementSystem.Controllers
                     _context.UserPayments.Add(userPayment);
                     _context.SaveChanges();
                     return Json(new { success = true });
-                  
+
                 }
 
                 return Json(new { success = false, error = "Payment failed or requires further action." });
@@ -177,7 +175,7 @@ namespace LibraryManagementSystem.Controllers
                 QRCode = GenerateQrCodeAsync(Name + "\n" + Author + "\n" + Description),
             };
 
-            // Handling the Image upload
+           
             if (Image != null && Image.Length > 0)
             {
                 string imageFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Image");
@@ -193,8 +191,9 @@ namespace LibraryManagementSystem.Controllers
 
                 book.ProfileImage = imageFileName;
             }
+           
 
-            // Handling the PDF upload
+         
             if (PdfFile != null && PdfFile.Length > 0)
             {
                 string pdfFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Files");
@@ -362,7 +361,7 @@ namespace LibraryManagementSystem.Controllers
                 query = query.Where(b => b.Name.Contains(searchQuery) || b.Author.Contains(searchQuery));
             }
 
-           
+
             query = sortBy switch
             {
                 "Name" => isAscending ? query.OrderBy(b => b.Name) : query.OrderByDescending(b => b.Name),
@@ -408,7 +407,7 @@ namespace LibraryManagementSystem.Controllers
                                   PaymentStatus = rb.PaymentStatus,
                                   PaymentAmount = up.PaymentAmount,
                                   PaymentDate = up.PaymentDate,
-                                  AdminPayments=up.AdminProfit
+                                  AdminPayments = up.AdminProfit
                               };
 
             // Pass the data to the view
@@ -425,20 +424,20 @@ namespace LibraryManagementSystem.Controllers
 
             int ids = int.Parse(userId);
 
-                  var reservedBooks = _context.ReservedBook
-                 .Include(ub => ub.Book) 
-                 .Where(ub => ub.UserId == ids)
-                 .Select(ub => new BookDetails
-                 {
-                     Id = ub.BookId,
-                     BookName = ub.Book.Name,
-                     AuthorName = ub.Book.Author,
-                     Description = ub.Book.Description,
-                     BookCreationDate = ub.Book.BookCreationDate,
-                     CreationDate = ub.BookDateTime,
-                     IsReserved = true
-                 })
-                 .ToList();
+            var reservedBooks = _context.ReservedBook
+           .Include(ub => ub.Book)
+           .Where(ub => ub.UserId == ids)
+           .Select(ub => new BookDetails
+           {
+               Id = ub.BookId,
+               BookName = ub.Book.Name,
+               AuthorName = ub.Book.Author,
+               Description = ub.Book.Description,
+               BookCreationDate = ub.Book.BookCreationDate,
+               CreationDate = ub.BookDateTime,
+               IsReserved = true
+           })
+           .ToList();
 
 
             return View(reservedBooks);
@@ -446,15 +445,15 @@ namespace LibraryManagementSystem.Controllers
         public List<BookDetails> GetBooksForUserAsync(int userId)
         {
             var books = _context.ReservedBook
-              .Include(ub => ub.Book) 
-              .Where(ub => ub.UserId == userId) 
+              .Include(ub => ub.Book)
+              .Where(ub => ub.UserId == userId)
               .Select(ub => new BookDetails
               {
-                  BookName = ub.Book.Name,              
-                  CreationDate = DateTime.Now,          
+                  BookName = ub.Book.Name,
+                  CreationDate = DateTime.Now,
                   AuthorName = ub.Book.Author,
                   Description = ub.Book.Description,
-                   
+
                   BookCreationDate = ub.Book.BookCreationDate
               })
              .ToList();
@@ -475,7 +474,7 @@ namespace LibraryManagementSystem.Controllers
 
             return RedirectToAction("show");
         }
-        [HttpPost]       
+        [HttpPost]
         public IActionResult ReserveBook([FromBody] ReserveBookRequest request)
         {
             if (request == null || request.BookId <= 0 || request.UserId <= 0)
@@ -483,9 +482,9 @@ namespace LibraryManagementSystem.Controllers
                 return BadRequest("Invalid data.");
             }
 
-          
+
             var success = ReserveBook(request.BookId, request.UserId);
-            if (success!=null)
+            if (success != null)
             {
                 return Ok(new { message = "Book reserved successfully." });
             }
@@ -565,7 +564,7 @@ namespace LibraryManagementSystem.Controllers
             book.Author = Author;
             book.BookCreationDate = BookCreationDate;
             book.Price = Price;
-           
+
             // Handle profile image update
             if (profileImage != null && profileImage.Length > 0)
             {
@@ -608,9 +607,11 @@ namespace LibraryManagementSystem.Controllers
         {
             return View();
         }
+       
         [HttpPost]
         public async Task<IActionResult> ReserveBooks([FromBody] ReserveBookRequest request)
-        { long amount = 2000; 
+        {
+            long amount = 2000;
 
             var sessionOptions = new SessionCreateOptions
             {
@@ -639,10 +640,13 @@ namespace LibraryManagementSystem.Controllers
             var service = new SessionService();
             Session session = await service.CreateAsync(sessionOptions);
 
-             return Json(new { sessionId = session.Id });
+            return Json(new { sessionId = session.Id });
         }
+
+      
+
         [HttpPost]
-        public IActionResult ToggleReservation(int id)  
+        public IActionResult ToggleReservation(int id)
         {
             var userId = HttpContext.Session.GetString("UserId");
 
@@ -654,13 +658,18 @@ namespace LibraryManagementSystem.Controllers
 
             int userIdInt = int.Parse(userId);
             
+           
+
+            
+            
+
                 var userBook =  _context.ReservedBook
                     .FirstOrDefault(ub => ub.BookId == id && ub.UserId == userIdInt);
 
-                 _context.ReservedBook.Remove(userBook);
-                    _context.SaveChangesAsync();
-                    TempData["Success"] = "Book unreserved successfully.";
-           
+            _context.ReservedBook.Remove(userBook);
+            _context.SaveChangesAsync();
+            TempData["Success"] = "Book unreserved successfully.";
+
 
             return RedirectToAction("Show");
         }
@@ -702,7 +711,9 @@ namespace LibraryManagementSystem.Controllers
                     Description = book.Description,
                     Price = book.Price,
                     BookCreationDate = book.BookCreationDate,
-                    IsReserved = _context.ReservedBook.Any(ub => ub.BookId == book.Id && ub.UserId == ids)
+                    IsReserved = _context.ReservedBook.Any(ub => ub.BookId == book.Id && ub.UserId == ids),
+                    IsFavorite = _context.FavoriteBooks.Any(fb => fb.BookId == book.Id && fb.UserId == ids && fb.IsFavorite)
+
                 })
                 .ToList();
 
@@ -713,7 +724,7 @@ namespace LibraryManagementSystem.Controllers
         [HttpPost]
         public IActionResult Del(int id)
         {
-            var person = _context.Book.Find( id);
+            var person = _context.Book.Find(id);
 
             if (person != null)
             {
@@ -724,9 +735,81 @@ namespace LibraryManagementSystem.Controllers
             }
             return RedirectToAction("ViewBook");
         }
-       
+
+        [HttpGet]
+        public IActionResult FavoriteBooks()
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["SessionExpired"] = "Please log in to add favorites.";
+                return RedirectToAction("Index");
+            }
+            int ids = int.Parse(userId);
+
+
+            var favoriteBooks = _context.FavoriteBooks
+                    .Where(fb => fb.UserId == ids && fb.IsFavorite)
+                    .Select(fb => new BookDetails
+                    {
+                        Id = fb.Book.Id,
+                        BookName = fb.Book.Name,
+                        Rating = fb.Rating,
+                        BookFavoritedAt = fb.BookFavoritedDate,
+                        IsFavorite = fb.IsFavorite
+                    }).ToList();
+
+
+
+            return View(favoriteBooks);
+        }
+
+        [HttpPost]
+        public IActionResult FavoriteBook([FromBody] FavoriteBookDto favoriteBookDto)
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+            {
+                TempData["SessionExpired"] = "Please log in to add favorites.";
+                return RedirectToAction("Index");
+            }
+            int ids = int.Parse(userId);
+
+
+            var favoriteBook = _context.FavoriteBooks
+                .FirstOrDefault(fb => fb.UserId == ids && fb.BookId == favoriteBookDto.BookId);
+
+            if (favoriteBook == null)
+            {
+                // Add a new favorite book with a rating
+                favoriteBook = new FavoriteBook
+                {
+                    UserId = ids,
+                    BookId = favoriteBookDto.BookId,
+                    Rating = favoriteBookDto.Rating,
+                    IsFavorite = true
+                };
+                _context.FavoriteBooks.Add(favoriteBook);
+            }
+            else
+            {
+
+                favoriteBook.IsFavorite = !favoriteBook.IsFavorite;
+
+                if (favoriteBookDto.Rating != 0)
+                {
+                    favoriteBook.Rating = favoriteBookDto.Rating;
+                }
+            }
+
+            _context.SaveChanges();
+            return Ok();
+        }
+
+
+
 
 
     }
-    }
+}
 

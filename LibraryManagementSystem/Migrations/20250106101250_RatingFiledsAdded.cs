@@ -5,15 +5,21 @@
 namespace LibraryManagementSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class bookimage : Migration
+    public partial class RatingFiledsAdded : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "ProfileImage",
+            migrationBuilder.AddColumn<int>(
+                name: "Rating",
+                table: "FavoriteBooks",
+                type: "int",
+                nullable: true);
+
+            migrationBuilder.AddColumn<double>(
+                name: "AverageRating",
                 table: "Book",
-                type: "nvarchar(max)",
+                type: "float",
                 nullable: true);
         }
 
@@ -21,7 +27,11 @@ namespace LibraryManagementSystem.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "ProfileImage",
+                name: "Rating",
+                table: "FavoriteBooks");
+
+            migrationBuilder.DropColumn(
+                name: "AverageRating",
                 table: "Book");
         }
     }

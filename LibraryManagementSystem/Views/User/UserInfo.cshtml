@@ -25,6 +25,9 @@
     <link href="~/lib/owlcarousel/assets/owl.theme.green.css" rel="stylesheet" />
     <link href="~/lib/owlcarousel/assets/owl.theme.green.min.css" rel="stylesheet" />
     <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet" />
+    <!-- Add this to your HTML head -->
+
+
 
     <link rel="stylesheet" href="~/LibraryManagementSystem.styles.css" asp-append-version="true" />
         <style>
@@ -167,31 +170,35 @@ h6 {
 </head>
 <body>
     <div class="container-fluid position-relative bg-white d-flex p-0 "
-    <header>
+   <header>
         <div class="sidebar">
-            <nav class="navbar bg-light navbar-light ">
-                <a asp-action="BookView" asp-controller="Book" class="navbar-brand ">
-                    <h3 class="text-primary"><i class=" me-2 ms-3"></i>User</h3>
-                </a>
-                <div class="d-flex align-items-center ms-4 mb-4">
+            <nav class="navbar ">
 
-                    <div class="ms-2">
-                         <span  href="/User/Userinfo">@Model.FirstName</span>
-                    </div>
-                </div>
+              <div class="d-flex align-items-center ms-4 mt-5 mb-4">
+                            <div class="position-relative">
+                                <img class="rounded-circle"src="~/img/user.jpg" alt="" style="width: 40px; height: 40px;">
+                                <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
+                            </div>
+                            <div class="ms-3">
+
+                                <a href="/user/userinfo"><span>My Profile</span></a>
+                            </div>
+                          </div>
                <div class="navbar-nav w-100">
-            <a asp-action="ViewBook" asp-controller="Book"
-               class="nav-item  nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Book" ? "active" : "")">
-                <i class="fa fa-keyboard me-2"></i>Books
-            </a>
-
-
+                 <a asp-action="BookView" asp-controller="Book"
+                   class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "BookView" ? "active" : "")">
+                   <i class="fa fa-keyboard me-2"></i>All Books
+                </a>
             <a asp-action="Show" asp-controller="Book"
-               class="nav-item nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Book" ? "active" : "")">
-                <i class="fa fa-keyboard me-2"></i>My
+               class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Show" ? "active" : "")">
+                <i class="fa fa-keyboard me-2"></i>My Books
+            </a>
+                <a asp-action="FavoriteBooks" asp-controller="Book"
+               class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "FavoriteBooks" ? "active" : "")">
+                <i class="fa fa-keyboard me-2"></i>Favorite Books
             </a>
              <a asp-action="Logouts" asp-controller="Home"
-               class="nav-item nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Book" ? "active" : "")">
+               class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Logouts" ? "active" : "")">
                 <i class="bi bi-box-arrow-in-right me-2"></i>Logout
             </a>
 

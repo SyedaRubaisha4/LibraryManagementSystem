@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace LibraryManagementSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class newdb : Migration
+    public partial class Databaseupdated : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -61,12 +61,28 @@ namespace LibraryManagementSystem.Migrations
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Author = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ProfileImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     BookCreationDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    BookAddedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    QRCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BookAddedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PdfFileName = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Book", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Category",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Category", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -85,8 +101,12 @@ namespace LibraryManagementSystem.Migrations
                     UserAddedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Age = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Latitude = table.Column<double>(type: "float", nullable: true),
+                    Longitude = table.Column<double>(type: "float", nullable: true),
                     ResetToken = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TokenExpiry = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    TokenExpiry = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ProfileImage = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UniversityName = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -200,6 +220,33 @@ namespace LibraryManagementSystem.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FavoriteBooks",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    BookId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BookFavoritedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FavoriteBooks", x => new { x.UserId, x.BookId });
+                    table.ForeignKey(
+                        name: "FK_FavoriteBooks_Book_BookId",
+                        column: x => x.BookId,
+                        principalTable: "Book",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_FavoriteBooks_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ReservedBook",
                 columns: table => new
                 {
@@ -264,17 +311,16 @@ namespace LibraryManagementSystem.Migrations
                     UserBookId = table.Column<int>(type: "int", nullable: false),
                     PaymentAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserBookBookId = table.Column<int>(type: "int", nullable: false),
-                    UserBookUserId = table.Column<int>(type: "int", nullable: false)
+                    AdminProfit = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserPayments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserPayments_UserBooks_UserBookBookId_UserBookUserId",
-                        columns: x => new { x.UserBookBookId, x.UserBookUserId },
-                        principalTable: "UserBooks",
-                        principalColumns: new[] { "BookId", "UserId" },
+                        name: "FK_UserPayments_ReservedBook_UserBookId",
+                        column: x => x.UserBookId,
+                        principalTable: "ReservedBook",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -318,6 +364,11 @@ namespace LibraryManagementSystem.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_FavoriteBooks_BookId",
+                table: "FavoriteBooks",
+                column: "BookId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ReservedBook_BookId",
                 table: "ReservedBook",
                 column: "BookId");
@@ -333,9 +384,9 @@ namespace LibraryManagementSystem.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserPayments_UserBookBookId_UserBookUserId",
+                name: "IX_UserPayments_UserBookId",
                 table: "UserPayments",
-                columns: new[] { "UserBookBookId", "UserBookUserId" });
+                column: "UserBookId");
         }
 
         /// <inheritdoc />
@@ -357,7 +408,13 @@ namespace LibraryManagementSystem.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "ReservedBook");
+                name: "Category");
+
+            migrationBuilder.DropTable(
+                name: "FavoriteBooks");
+
+            migrationBuilder.DropTable(
+                name: "UserBooks");
 
             migrationBuilder.DropTable(
                 name: "UserPayments");
@@ -369,7 +426,7 @@ namespace LibraryManagementSystem.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "UserBooks");
+                name: "ReservedBook");
 
             migrationBuilder.DropTable(
                 name: "Book");

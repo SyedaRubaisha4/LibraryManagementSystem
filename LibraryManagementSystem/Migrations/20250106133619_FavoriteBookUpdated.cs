@@ -5,25 +5,25 @@
 namespace LibraryManagementSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class adminprofit : Migration
+    public partial class FavoriteBookUpdated : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<decimal>(
-                name: "AdminProfit",
-                table: "UserPayments",
-                type: "decimal(18,2)",
+            migrationBuilder.AddColumn<bool>(
+                name: "IsFavorite",
+                table: "FavoriteBooks",
+                type: "bit",
                 nullable: false,
-                defaultValue: 0m);
+                defaultValue: false);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "AdminProfit",
-                table: "UserPayments");
+                name: "IsFavorite",
+                table: "FavoriteBooks");
         }
     }
 }

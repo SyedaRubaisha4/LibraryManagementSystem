@@ -9,7 +9,9 @@
         public string Description { get; set; }
         public decimal Price { get; set; }
         public DateOnly BookCreationDate { get; set; }
-
+        public DateTime BookFavoritedAt { get; set; }
+        public bool IsFavorite { get; set; }
+        public int? Rating { get; set; }
         // Add the IsReserved property
         public bool IsReserved { get; set; } // Indicates if the book is reserved by the current user
     }

@@ -4,6 +4,7 @@ using LibraryManagementSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryManagementSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250106133619_FavoriteBookUpdated")]
+    partial class FavoriteBookUpdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -275,29 +278,6 @@ namespace LibraryManagementSystem.Migrations
                     b.ToTable("Book");
                 });
 
-            modelBuilder.Entity("Models.DBModel.BookCategories", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BookId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookId");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("BookCategory");
-                });
-
             modelBuilder.Entity("Models.DBModel.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -433,9 +413,6 @@ namespace LibraryManagementSystem.Migrations
 
                     b.Property<DateTime?>("TokenExpiry")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("UniversityAddress")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UniversityName")
                         .HasColumnType("nvarchar(max)");
@@ -574,25 +551,6 @@ namespace LibraryManagementSystem.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Models.DBModel.BookCategories", b =>
-                {
-                    b.HasOne("Models.DBModel.Book", "Book")
-                        .WithMany("BookCategories")
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Models.DBModel.Category", "Category")
-                        .WithMany("BookCategories")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Book");
-
-                    b.Navigation("Category");
-                });
-
             modelBuilder.Entity("Models.DBModel.ReservedBooks", b =>
                 {
                     b.HasOne("Models.DBModel.Book", "Book")
@@ -644,12 +602,9 @@ namespace LibraryManagementSystem.Migrations
 
             modelBuilder.Entity("Models.DBModel.Book", b =>
                 {
-                    b.Navigation("UserBooks");
-                });
+                    b.Navigation("FavoriteBooks");
 
-            modelBuilder.Entity("Models.DBModel.Category", b =>
-                {
-                    b.Navigation("BookCategories");
+                    b.Navigation("UserBooks");
                 });
 
             modelBuilder.Entity("Models.DBModel.ReservedBooks", b =>
