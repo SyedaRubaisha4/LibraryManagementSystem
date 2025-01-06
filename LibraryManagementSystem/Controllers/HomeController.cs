@@ -1,11 +1,11 @@
 using LibraryManagementSystem.Data;
-using Models.DTOModel;
-using Models.DBModel;
-using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-using System.Net.Mail;
-using System.Net;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Models.DBModel;
+using Models.DTOModel;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Mail;
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -13,16 +13,16 @@ namespace LibraryManagementSystem.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ApplicationDbContext _context;
-        private readonly IConfiguration _configuration; 
+        private readonly IConfiguration _configuration;
         private readonly EmailService _emailService;
         private readonly PasswordHasher<User> _passwordHasher;
-        public HomeController(ILogger<HomeController> logger,ApplicationDbContext applicationDb, IConfiguration configuration, EmailService emailService)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext applicationDb, IConfiguration configuration, EmailService emailService)
         {
             _logger = logger;
             _context = applicationDb;
             _passwordHasher = new PasswordHasher<User>();
-            _configuration = configuration; 
-            _emailService = emailService; 
+            _configuration = configuration;
+            _emailService = emailService;
         }
         public IActionResult ForgotPassword()
         {
@@ -32,7 +32,7 @@ namespace LibraryManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult ForgotPassword(string email)
         {
-            var user =  _context.User.FirstOrDefault(u => u.Email == email);
+            var user = _context.User.FirstOrDefault(u => u.Email == email);
             if (user == null)
             {
                 TempData["accountError"] = "No account found with this email.";
@@ -41,11 +41,11 @@ namespace LibraryManagementSystem.Controllers
 
             var resetToken = Guid.NewGuid().ToString();
             user.ResetToken = resetToken;
-            user.TokenExpiry = DateTime.Now.AddHours(24); 
+            user.TokenExpiry = DateTime.Now.AddHours(24);
 
-      
+
             _context.User.Update(user);
-             _context.SaveChangesAsync();
+            _context.SaveChangesAsync();
 
             var resetLink = Url.Action("ResetPassword", "Home", new { token = resetToken }, Request.Scheme);
             SendResetEmail(user.Email, resetLink);
@@ -75,7 +75,7 @@ namespace LibraryManagementSystem.Controllers
             smtpClient.Send(mailMessage);
         }
 
-       
+
         public IActionResult ResetPassword(string token)
         {
             return View(new ResetPasswordViewModel { Token = token });
@@ -97,7 +97,7 @@ namespace LibraryManagementSystem.Controllers
                 return RedirectToAction("Login");
             }
 
-            var user =  _context.User.FirstOrDefault(u =>
+            var user = _context.User.FirstOrDefault(u =>
                 u.ResetToken == model.Token &&
                 u.TokenExpiry.HasValue &&
                 u.TokenExpiry > DateTime.UtcNow);
@@ -108,9 +108,9 @@ namespace LibraryManagementSystem.Controllers
                 return RedirectToAction("Login");
             }
 
-            user.Password =  model.NewPassword;
-            user.ResetToken = ""; 
-            user.TokenExpiry = null; 
+            user.Password = model.NewPassword;
+            user.ResetToken = "";
+            user.TokenExpiry = null;
             _context.SaveChangesAsync();
 
             TempData["PasSuccess"] = "Your password has been successfully reset!";
@@ -119,7 +119,7 @@ namespace LibraryManagementSystem.Controllers
 
         public IActionResult Index()
         {
-            return RedirectToAction("ViewBook","Book");
+            return RedirectToAction("ViewBook", "Book");
         }
         public IActionResult Logouts()
         {
@@ -127,7 +127,7 @@ namespace LibraryManagementSystem.Controllers
             HttpContext.Session.Remove("Email");
             HttpContext.Session.Remove("Password");
             return RedirectToAction("login", "Home");
-        
+
         }
 
         [HttpPost]
@@ -139,8 +139,8 @@ namespace LibraryManagementSystem.Controllers
             {
                 HttpContext.Session.SetString("UserId", user.Id.ToString());
                 HttpContext.Session.SetString("Email", user.Email);
-                HttpContext.Session.SetString("Password",user.Password);
-          
+                HttpContext.Session.SetString("Password", user.Password);
+
 
                 if (user.Roll == Roll.Admin.ToString())
                 {
@@ -161,7 +161,7 @@ namespace LibraryManagementSystem.Controllers
                 }
             }
             TempData["Error"] = "Invalid username or password";
-            return RedirectToAction("login");  
+            return RedirectToAction("login");
         }
         public IActionResult login()
         {
@@ -172,13 +172,13 @@ namespace LibraryManagementSystem.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult signup(string FirstName, string LastName, string Age, string Gender, DateTime DateofBirth, string Password,string Email, IFormFile? Image)
+        public IActionResult signup(string FirstName, string LastName, string Age, string Gender, double? Latitude, double? Longitude, string UniVersityName, string UniversityAddress, DateTime DateofBirth, string Password, string Email, IFormFile? Image)
         {
-            var person= _context.User.FirstOrDefault(p => p.Email==Email);
+            var person = _context.User.FirstOrDefault(p => p.Email == Email);
             var today = DateTime.Today;
-                 var age = today.Year - DateofBirth.Year;
+            var age = today.Year - DateofBirth.Year;
 
-           if(age<14)
+            if (age < 14)
             {
                 TempData["Dob"] = "Date of birth should be greater than 14";
                 return View(person);
@@ -199,12 +199,16 @@ namespace LibraryManagementSystem.Controllers
                 Status = UserStatus.Active.ToString(),
                 ResetToken = "",
                 TokenExpiry = null,
+                Latitude = Latitude,
+                Longitude = Longitude,
+                UniversityName = UniVersityName,
+                UniversityAddress = UniversityAddress
             };
 
             if (Image != null && Image.Length > 0)
             {
                 string uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Image");
-                Directory.CreateDirectory(uploadFolder); 
+                Directory.CreateDirectory(uploadFolder);
 
                 string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(Image.FileName);
                 string filePath = Path.Combine(uploadFolder, uniqueFileName);
@@ -218,13 +222,13 @@ namespace LibraryManagementSystem.Controllers
             }
             else
             {
-                   user.ProfileImage = null;
+                user.ProfileImage = null;
             }
 
             // Save the user to the database
             _context.User.Add(user);
             _context.SaveChanges(); return RedirectToAction("login");
-            
+
             //else
             //{
             //    TempData["UserExists"] = "Already user exists with this mail";

@@ -5,14 +5,14 @@
 namespace LibraryManagementSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class pdffile : Migration
+    public partial class UniversityAddressAdded : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "PdfFileName",
-                table: "Book",
+                name: "UniversityAddress",
+                table: "User",
                 type: "nvarchar(max)",
                 nullable: true);
         }
@@ -21,8 +21,8 @@ namespace LibraryManagementSystem.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "PdfFileName",
-                table: "Book");
+                name: "UniversityAddress",
+                table: "User");
         }
     }
 }

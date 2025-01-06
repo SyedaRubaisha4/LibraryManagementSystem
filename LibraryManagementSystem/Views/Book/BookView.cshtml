@@ -26,17 +26,18 @@
 
     <link rel="stylesheet" href="~/LibraryManagementSystem.styles.css" asp-append-version="true" />
 <style>
-        #card-element div {
-            display: block;
-            margin-bottom: 20px; /* Add spacing between rows */
-        }
+      
+        .star {
+    transition: color 0.3s ease-in-out;
+}
+
 </style>
 </head>
 <body>
     <div class="container-fluid position-relative bg-white d-flex p-0 "
     <header>
         <div class="sidebar">
-            <nav class="navbar bg-light navbar-light ">
+            <nav class="navbar ">
               
               <div class="d-flex align-items-center ms-4 mt-5 mb-4">
                             <div class="position-relative">
@@ -50,12 +51,16 @@
                           </div>
                <div class="navbar-nav w-100">
                  <a asp-action="BookView" asp-controller="Book"
-                   class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Book" ? "active" : "")">
+                   class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "BookView" ? "active" : "")">
                    <i class="fa fa-keyboard me-2"></i>All Books
                 </a>
             <a asp-action="Show" asp-controller="Book"
                class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Show" ? "active" : "")">
                 <i class="fa fa-keyboard me-2"></i>My Books
+            </a>
+                <a asp-action="FavoriteBooks" asp-controller="Book"
+               class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "FavoriteBooks" ? "active" : "")">
+                <i class="fa fa-keyboard me-2"></i>Favorite Books
             </a>
              <a asp-action="Logouts" asp-controller="Home"
                class="nav-item nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Logouts" ? "active" : "")">
@@ -104,26 +109,27 @@
             </div>
 
                  
-                <div class="row g-4">
-        <div class="col-sm-12 col-xl-12">
+                <div class="px-4 g-4">
+        <div class="">
             <div class="bg-light rounded h-100 p-4">
                 <h6 class="mb-4">Books</h6>
              <table class="table table-striped">
     <thead>
         <tr>
-            <th scope="col">#</th>
+        
             <th scope="col">Name</th>
             <th scope="col">Description</th>
             <th scope="col">Author</th>
             <th scope="col">Created At</th>
             <th scope="col">Purchasing</th>
+            <th scope="col">Favorite It</th>
         </tr>
     </thead>
     <tbody>
                 @foreach (var item in Model)
                 {
                 <tr>
-                    <th scope="col">#</th>
+                   
                     <td>@item.BookName</td>
                     <td>@item.Description</td>
                     <td>@item.AuthorName</td>
@@ -134,6 +140,8 @@
         data-bs-toggle="modal" data-bs-target="#actionModal-@item.Id">
         Reserve
     </button>
+
+
 
     <!-- Reserve Modal (for confirming reservation) -->
     <div class="modal fade" id="actionModal-@item.Id" tabindex="-1" aria-labelledby="modalLabel-@item.Id" aria-hidden="true">
@@ -198,6 +206,22 @@
     </div>
 
 </td>
+
+  <td>
+                @if (item.IsFavorite)
+                {
+                    <button class="btn btn-outline-danger" disabled>
+                       <i class="fas fa-heart" style="color: #f40b0b;"></i>
+                    </button>
+                }
+                else
+
+                {
+                    <button class="btn" style="border:1px solid red;" onclick="openRatingModal(@item.Id, '@item.BookName')">
+                     <i class="far fa-heart "  style="color: #f40b0b;"></i>
+                    </button>
+                }
+            </td>
                 </tr>
                 }
                  
@@ -209,6 +233,28 @@
     </div>
                  </div>
         </main>
+
+
+        <div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ratingModalLabel">Rate the Book</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="bookName" class="fw-bold"></p>
+                <div id="ratingStars" class="d-flex">
+                    <!-- Stars will be rendered dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitRating()">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
     </div>
 
 
@@ -232,6 +278,68 @@
     <script src="~/lib/waypoints/waypoints.min.js"></script>
     <script src="~/lib/easing/easing.min.js"></script>
     <script>
+
+        let selectedRating = 0;
+let currentBookId = null;
+
+// Open the modal with book details
+function openRatingModal(bookId, bookName) {
+    currentBookId = bookId;
+    selectedRating = 0; // Reset rating
+    document.getElementById("bookName").textContent = `Book: ${bookName}`;
+
+    // Render stars
+    const starsContainer = document.getElementById("ratingStars");
+    starsContainer.innerHTML = ""; // Clear previous stars
+    for (let i = 1; i <= 5; i++) {
+        const star = document.createElement("span");
+        star.className = "star fs-2 me-2";
+        star.innerHTML = "&#9733;"; 
+        star.style.color = "gray"; 
+        star.style.cursor = "pointer";
+        star.onclick = () => setRating(i);
+        starsContainer.appendChild(star);
+    }
+
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById("ratingModal"));
+    modal.show();
+}
+
+// Highlight stars based on the selected rating
+function setRating(rating) {
+    selectedRating = rating;
+    const stars = document.querySelectorAll("#ratingStars .star");
+    stars.forEach((star, index) => {
+        star.style.color = index < rating ? "yellow" : "gray"; 
+    });
+}
+
+// Submit the rating
+function submitRating() {
+    if (selectedRating === 0) {
+        alert("Please select a rating!");
+        return;
+    }
+
+    // Send the rating to the server
+    fetch('/Book/FavoriteBook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookId: currentBookId, rating: selectedRating })
+    }).then(response => {
+        if (response.ok) {
+          
+            const modal = bootstrap.Modal.getInstance(document.getElementById("ratingModal"));
+            modal.hide(); // Close the modal
+            location.reload(); // Refresh to show updates
+        } else {
+           console.log("Something went wrong!")
+        }
+    });
+}
+
+
         document.querySelectorAll('.reserve-form').forEach((form) => {
             form.addEventListener('submit', function (e) {
                 e.preventDefault(); // Prevent the form's default submission
@@ -374,6 +482,9 @@
                 });
             });
         });
+
+
+
     </script>
 
 

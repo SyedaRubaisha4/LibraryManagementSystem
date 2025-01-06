@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryManagementSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250103141855_category")]
-    partial class category
+    [Migration("20250106095302_Databaseupdated")]
+    partial class Databaseupdated
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -292,6 +292,30 @@ namespace LibraryManagementSystem.Migrations
                     b.ToTable("Category");
                 });
 
+            modelBuilder.Entity("Models.DBModel.FavoriteBook", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("BookFavoritedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.HasKey("UserId", "BookId");
+
+                    b.HasIndex("BookId");
+
+                    b.ToTable("FavoriteBooks");
+                });
+
             modelBuilder.Entity("Models.DBModel.ReservedBooks", b =>
                 {
                     b.Property<int>("Id")
@@ -353,6 +377,12 @@ namespace LibraryManagementSystem.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
+
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -374,6 +404,9 @@ namespace LibraryManagementSystem.Migrations
 
                     b.Property<DateTime?>("TokenExpiry")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UniversityName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UserAddedDate")
                         .HasColumnType("datetime2");
@@ -490,6 +523,25 @@ namespace LibraryManagementSystem.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Models.DBModel.FavoriteBook", b =>
+                {
+                    b.HasOne("Models.DBModel.Book", "Book")
+                        .WithMany("FavoriteBooks")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Models.DBModel.User", "User")
+                        .WithMany("FavoriteBooks")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Models.DBModel.ReservedBooks", b =>
                 {
                     b.HasOne("Models.DBModel.Book", "Book")
@@ -541,6 +593,8 @@ namespace LibraryManagementSystem.Migrations
 
             modelBuilder.Entity("Models.DBModel.Book", b =>
                 {
+                    b.Navigation("FavoriteBooks");
+
                     b.Navigation("UserBooks");
                 });
 
@@ -551,6 +605,8 @@ namespace LibraryManagementSystem.Migrations
 
             modelBuilder.Entity("Models.DBModel.User", b =>
                 {
+                    b.Navigation("FavoriteBooks");
+
                     b.Navigation("UserBooks");
                 });
 #pragma warning restore 612, 618

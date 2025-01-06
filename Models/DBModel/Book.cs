@@ -1,18 +1,12 @@
 ﻿using Models.DTOModel;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Models.DBModel
 {
     public class Book
     {
         [Key]
-
         public int Id { get; set; }
         [Required]
         public string Name { get; set; }
@@ -27,7 +21,7 @@ namespace Models.DBModel
         public string? ProfileImage { get; set; }
         public DateOnly BookCreationDate { get; set; }
         public string QRCode { get; set; }
-
+        public double? AverageRating { get; set; }
         [Required]
         public DateTime BookAddedDate { get; set; }
         [NotMapped]
@@ -36,6 +30,7 @@ namespace Models.DBModel
         [NotMapped]
         public IFormFile? PdfFile { get; set; }
         public virtual ICollection<UserBooks> UserBooks { get; set; }
+        public virtual ICollection<FavoriteBook> FavoriteBooks { get; set; }
 
 
     }

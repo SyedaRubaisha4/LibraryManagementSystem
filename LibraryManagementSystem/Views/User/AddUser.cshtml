@@ -1,4 +1,7 @@
-﻿@model Models.DTOModel.UserViewModel
+﻿<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+@model Models.DTOModel.UserViewModel
 <div class="  " >
     @if (TempData["EmailError"] != null)
     {
@@ -60,7 +63,7 @@
         </div>
 
     }
-    <div class="row ">
+    <div class="row">
         <div id="toastContainer" class=" bottom-0 end-0 p-3" style="z-index: 11;"></div>
         <div class="d-flex col-xl-12  justify-content-between">
             <div id="spinner" class="d-none bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -180,7 +183,7 @@
                 <table class="table table-striped table-responsive">
                     <thead>
                         <tr>
-                            <td style=" text-align: right; " colspan="10">
+                            <td style=" text-align: right; " colspan="15">
                                 <form method="get" asp-action="AddUser" asp-controller="User" id="searchForm" class="d-flex justify-content-end">
                                     <input type="text" name="searchQuery" id="searchBox" class="form-control me-1" placeholder="Search..." style="width: 20%;" value="@ViewBag.SearchQuery">
                                     <button type="submit" class="btn " style="border-radius:60%;background-color:lightpink;opacity:0.7"><i class="bi bi-search text-black"></i></button>
@@ -217,6 +220,13 @@
                                     }
                                 </a>
                             </th>
+
+                                <th scope="col">Location</th>
+                                <th scope="col">University</th>
+                                <th scope="col">University Address</th>
+
+
+                        
                             <th scope="col">BirthDate</th>
                             <th scope="col">Password</th>
                             <th scope="col">Email</th>
@@ -239,6 +249,19 @@
                                 <td>@item.FirstName</td>
                                 <td>@item.LastName</td>
                                 <td>@item.Age</td>
+                                    <td>
+                                        @if (item.Latitude != null && item.Longitude != null)
+                                        {
+                                            <a class="text-decoration-none" href="https://www.google.com/maps?q=@item.Latitude,@item.Longitude" target="_blank">Open Map</a>
+                                        }
+                                        else
+                                        {
+                                            <span>No Location</span>
+                                        }
+                                    </td>
+                                    <td>@item.UniversityName</td>
+                                    <td>@(string.IsNullOrEmpty(item.UniversityAddress) ? "Not Available" : item.UniversityAddress)</td>
+
                                 <td>@item.DateOfBirth.ToString("yyyy-MM-dd")</td>
                                 <td>@item.Password</td>
                                 <td>@item.Email</td>
