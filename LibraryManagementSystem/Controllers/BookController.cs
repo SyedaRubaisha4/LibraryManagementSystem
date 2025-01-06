@@ -12,18 +12,20 @@ using Stripe.Checkout;
 using System.Reflection.Metadata;
 using QRCoder;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-
-
+using Microsoft.AspNetCore.Mvc.Rendering;
+using LibraryManagementSystem.Migrations;
 namespace LibraryManagementSystem.Controllers
 {
     public class BookController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly StripeSettings _stripeSettings;
-        public BookController(ApplicationDbContext context, IOptions<StripeSettings> stripeSettings)
+        private readonly ReportsRepository _reportsRepository;
+        public BookController(ApplicationDbContext context, ReportsRepository reportsRepository, IOptions<StripeSettings> stripeSettings)
         {
             _context = context;
             _stripeSettings = stripeSettings.Value;
+            _reportsRepository=reportsRepository;
         }
         [HttpPost]
         public IActionResult Generate(string Name)
@@ -81,7 +83,6 @@ namespace LibraryManagementSystem.Controllers
                 }
             }
         }
-
         [HttpPost]
         public async Task<IActionResult> CreateCheckoutSession([FromBody] CheckoutRequest request)
         {
@@ -137,10 +138,33 @@ namespace LibraryManagementSystem.Controllers
                 return Json(new { success = false, error = ex.Message });
             }
         }
-
-
         [HttpPost]
-        public IActionResult Add(string Name, string Description, decimal Price, string Author, DateTime BookCreationDate, IFormFile? Image, IFormFile? PdfFile)
+        public IActionResult SaveCategories([FromBody] CategorySelectionDto selection)
+        {
+            if (selection == null || selection.CategoryIds == null || !selection.CategoryIds.Any())
+            {
+                return BadRequest(new { message = "No categories selected." });
+            }
+
+                 var latestBook = _context.Book.OrderByDescending(b => b.BookAddedDate).FirstOrDefault();
+         
+            foreach (var categoryId in selection.CategoryIds)
+            {
+                var bookCategory = new BookCategories
+                {
+                    BookId = latestBook.Id+1, 
+                    CategoryId = categoryId
+                };
+
+                _context.BookCategory.Add(bookCategory);
+            }
+
+            _context.SaveChanges();
+
+            return Ok(new { message = "Categories saved successfully!" });
+        }
+        [HttpPost]
+        public IActionResult Add(string Name, string Description, decimal Price, string Author, DateTime BookCreationDate, IFormFile? Image, IFormFile? PdfFile, List<string> SelectedCategories)
         {
             var book = new Book
             {
@@ -150,10 +174,10 @@ namespace LibraryManagementSystem.Controllers
                 Author = Author,
                 BookCreationDate = DateOnly.FromDateTime(BookCreationDate),
                 BookAddedDate = DateTime.Now,
-                QRCode = GenerateQrCodeAsync(Name+"\n" +Author+"\n"+Description),
+                QRCode = GenerateQrCodeAsync(Name + "\n" + Author + "\n" + Description),
             };
 
-           
+            // Handling the Image upload
             if (Image != null && Image.Length > 0)
             {
                 string imageFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Image");
@@ -169,9 +193,8 @@ namespace LibraryManagementSystem.Controllers
 
                 book.ProfileImage = imageFileName;
             }
-           
 
-         
+            // Handling the PDF upload
             if (PdfFile != null && PdfFile.Length > 0)
             {
                 string pdfFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Files");
@@ -190,9 +213,53 @@ namespace LibraryManagementSystem.Controllers
 
             _context.Book.Add(book);
             _context.SaveChanges();
+            var latestBook = _context.Book.OrderByDescending(b => b.BookAddedDate).FirstOrDefault();
+
+            if (SelectedCategories != null && SelectedCategories.Any())
+            {
+                foreach (var categoryId in SelectedCategories)
+                {
+                    var bookCategory = new BookCategories
+                    {
+                        BookId = book.Id,   // Use the actual BookId, not `book.Id + 1`
+                        CategoryId = int.Parse(categoryId) // Use the selected CategoryId
+                    };
+
+                    _context.BookCategory.Add(bookCategory); // Add each BookCategory record
+                }
+
+                _context.SaveChanges(); // Save changes for BookCategory links
+            }
+            //Handling categories selection(Assuming you have a Category table and a Book - Category many - to - many relation)
+           
+
 
             return RedirectToAction("ViewBook");
         }
+        public IActionResult GetBooksBasedOnReservedCategory()
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+
+
+            int ids = int.Parse(userId);
+            var books = _context.Book
+         .FromSqlRaw("EXEC GetReservedBooksBasedOnCategory @UserId = {0}", ids)
+         .ToList();
+
+            // Map the result to a list of BookDTO
+            var bookDTOs = books.Select(b => new BookDTO
+            {
+                Id = b.Id,
+                Name = b.Name,
+                Description = b.Description,
+                ProfileImage = b.ProfileImage // Assuming ProfileImage is stored as a file name
+            }).ToList();
+            ViewData["Books"] = bookDTOs;
+            // Pass the DTO list to the view
+            return View(bookDTOs);
+
+        }
+
         [HttpGet]
         public IActionResult GetUserDetails(int id)
         {
@@ -213,7 +280,6 @@ namespace LibraryManagementSystem.Controllers
                 pdfFileName = user.PdfFileName != null ? Url.Content("~/Files/" + user.PdfFileName) : null
             });
         }
-
         public IActionResult UserBooks([FromBody] ReserveBookRequesting request)
         {
             if (request == null || string.IsNullOrEmpty(request.Id))
@@ -262,9 +328,33 @@ namespace LibraryManagementSystem.Controllers
 
             return RedirectToAction("Show");
         }
+        public IActionResult ViewBooks(int pageNumber = 1, int pageSize = 10)
+        {
+            var books = _reportsRepository.GetBookCategories(pageNumber, pageSize);
+            ViewBag.PageNumber = pageNumber;
+            ViewBag.PageSize = pageSize;
+            return View(books);
+        }
         public IActionResult ViewBook(int page = 1, int pageSize = 3, string searchQuery = "", string sortBy = "Name", bool isAscending = true)
         {
-            var query = _context.Book.AsQueryable();
+
+            var categories = _context.Category.Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Name
+            }).ToList();
+
+            ViewData["category"] = categories;
+
+
+
+
+            var query = _context.Book
+        .Include(b => b.BookCategories)          // Include BookCategory (junction table)
+        .ThenInclude(bc => bc.Category)         // Include Category from BookCategory
+        .AsQueryable();
+
+            Console.Write(query);
 
             // Apply search query filter
             if (!string.IsNullOrEmpty(searchQuery))
@@ -518,7 +608,6 @@ namespace LibraryManagementSystem.Controllers
         {
             return View();
         }
-       
         [HttpPost]
         public async Task<IActionResult> ReserveBooks([FromBody] ReserveBookRequest request)
         { long amount = 2000; 
@@ -552,9 +641,6 @@ namespace LibraryManagementSystem.Controllers
 
              return Json(new { sessionId = session.Id });
         }
-
-      
-
         [HttpPost]
         public IActionResult ToggleReservation(int id)  
         {
@@ -568,11 +654,6 @@ namespace LibraryManagementSystem.Controllers
 
             int userIdInt = int.Parse(userId);
             
-           
-
-            
-            
-
                 var userBook =  _context.ReservedBook
                     .FirstOrDefault(ub => ub.BookId == id && ub.UserId == userIdInt);
 
@@ -583,7 +664,6 @@ namespace LibraryManagementSystem.Controllers
 
             return RedirectToAction("Show");
         }
-
         public IActionResult BookView()
         {
             var userId = HttpContext.Session.GetString("UserId");
@@ -596,6 +676,22 @@ namespace LibraryManagementSystem.Controllers
 
             int ids = int.Parse(userId);
 
+          
+            var booking = _context.Book
+                .FromSqlRaw("EXEC GetReservedBooksBasedOnCategory @UserId = {0}", ids)
+                .ToList();
+            // Map the data to BookDTO
+            var bookDTOs = booking.Select(b => new BookDTO
+            {
+                Id = b.Id,
+                Name = b.Name,
+                Description = b.Description,
+                ProfileImage = b.ProfileImage // Ensure ProfileImage is available
+            }).ToList();
+
+            ViewData["Books"] = bookDTOs;
+
+            // Fetch the book details, including reserved status
             var books = _context.Book
                 .Select(book => new BookDetails
                 {
@@ -604,7 +700,7 @@ namespace LibraryManagementSystem.Controllers
                     CreationDate = book.BookAddedDate,
                     AuthorName = book.Author,
                     Description = book.Description,
-                    Price= book.Price,
+                    Price = book.Price,
                     BookCreationDate = book.BookCreationDate,
                     IsReserved = _context.ReservedBook.Any(ub => ub.BookId == book.Id && ub.UserId == ids)
                 })
@@ -612,6 +708,8 @@ namespace LibraryManagementSystem.Controllers
 
             return View(books);
         }
+
+
         [HttpPost]
         public IActionResult Del(int id)
         {

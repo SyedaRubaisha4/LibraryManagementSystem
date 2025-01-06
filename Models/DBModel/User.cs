@@ -40,7 +40,6 @@ namespace Models.DBModel
         public IFormFile? Image { get; set; }
         public virtual ICollection<UserBooks> UserBooks { get; set; } = new List<UserBooks>();
 
-
-
+    
     }
 }

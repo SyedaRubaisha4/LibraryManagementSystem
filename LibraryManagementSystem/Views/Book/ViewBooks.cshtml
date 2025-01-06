@@ -1,0 +1,77 @@
+﻿@model List<Models.DTOModel.BookCategoryViewModel>
+
+<h2>Books with Categories</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th> Name</th>
+            <th>Description</th>
+            <th>Author</th>
+            <th>Status</th>
+            <th>QRCode</th>
+            <th>Book</th>
+            <th>Categories</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+            <tr>
+                <td>
+                   
+                    <a href="@Url.Content(book.ProfileImage == null ? "~/image/book.jpeg" : "~/image/" + book.ProfileImage)" target="_blank">
+                        <img src="@Url.Content(book.ProfileImage == null ? "~/image/book.jpeg" : "~/image/" + book.ProfileImage)"
+                             width="50" height="50" />
+                    </a>
+                </td>
+                <td>@book.BookName</td>
+                <td>@book.Description</td>
+                <td>@book.Author</td>
+                <td>@book.Status</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(book.QRCode))
+                    {
+                        <img src="data:image/png;base64,@book.QRCode" alt="QR Code" width="50" height="50" />
+                    }
+                    else
+                    {
+                        <p>No code</p>
+                    }
+                </td>
+                <td>
+                    @if (!string.IsNullOrEmpty(book.PdfFileName))
+                    {
+                        <a href="@Url.Content("~/Files/" + book.PdfFileName)" style="color:darkblue;text-decoration:none;" target="_blank">View Book</a>
+                    }
+                    else
+                    {
+                        <span>No Book</span>
+                    }
+                </td>
+                <td>@book.CategoryNames</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<ul class="pagination mb-0">
+    <li class="page-item @(ViewBag.PageNumber == 1 ? "disabled" : "")">
+        <a class="page-link" href="@Url.Action("ViewBooks", new { pageNumber = ViewBag.PageNumber > 1 ? ViewBag.PageNumber - 1 : 1, pageSize = ViewBag.PageSize, searchQuery = ViewBag.SearchQuery })">Previous</a>
+    </li>
+
+    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+    {
+        <li class="page-item @(i == ViewBag.PageNumber ? "active" : "")">
+            <a class="page-link" href="@Url.Action("ViewBooks", new { pageNumber = i, pageSize = ViewBag.PageSize, searchQuery = ViewBag.SearchQuery })">@i</a>
+        </li>
+    }
+
+    <li class="page-item @(ViewBag.PageNumber == ViewBag.TotalPages ? "disabled" : "")">
+        <a class="page-link" href="@Url.Action("ViewBooks", new { pageNumber = ViewBag.PageNumber + 1, pageSize = ViewBag.PageSize, searchQuery = ViewBag.SearchQuery })">Next</a>
+    </li>
+</ul>
+
+
+

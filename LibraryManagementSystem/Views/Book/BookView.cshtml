@@ -1,6 +1,11 @@
 ﻿@{
     Layout = null;
 }
+@{
+    ViewData["Title"] = "Books Based on Reserved Category";
+    var books = ViewData["Books"] as List<BookDTO>; // Retrieving the list from ViewData
+}
+
 @model IEnumerable<Models.DTOModel.BookDetails>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,7 +41,7 @@
     <div class="container-fluid position-relative bg-white d-flex p-0 "
     <header>
         <div class="sidebar">
-            <nav class="navbar bg-light navbar-light ">
+            <nav class="navbar  navbar-light ">
               
               <div class="d-flex align-items-center ms-4 mt-5 mb-4">
                             <div class="position-relative">
@@ -207,6 +212,35 @@
             </div>
         </div>
     </div>
+
+   <div class="container">
+    <h2 class="my-4">Suggestions</h2>
+    <div class="row">
+                        @foreach (var book in (List<BookDTO>)ViewData["Books"])
+                        {
+            <div class="col-md-4 mb-4">
+            <div class="card" style="width: 12rem;">
+                @if(@book.ProfileImage!=null)
+                {
+                                        <img src="~/image/@book.ProfileImage" class="card-img-top" alt="@book.Name" height="50" width="30" />
+
+                }
+                                    else
+                                    {
+                                                <img src="~/image/book.jpeg" class="card-img-top" alt="@book.Name" height="50" width="30" />
+
+                                    }
+                 <div class="card-body">
+                    <h5 class="card-title">@book.Name</h5>
+                    <p class="card-text">@book.Description</p>
+                    <a href="@Url.Action("Details", "Book", new { id = book.Id })" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+                        }
+    </div>
+</div>
+
                  </div>
         </main>
     </div>

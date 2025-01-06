@@ -35,7 +35,11 @@ namespace Models.DBModel
         public string? PdfFileName { get; set; }
         [NotMapped]
         public IFormFile? PdfFile { get; set; }
+        [NotMapped]
+        public List<int> CategoryIds { get; set; }
         public virtual ICollection<UserBooks> UserBooks { get; set; }
+        public virtual ICollection<BookCategories> BookCategories { get; set; }
+
 
 
     }

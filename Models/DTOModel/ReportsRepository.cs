@@ -6,8 +6,44 @@ namespace Models.DTOModel
     public class ReportsRepository
     {
         string connectionString = "Server=DESKTOP-5VHCIAH;Database=LibraryManagement;Trusted_Connection=True;TrustServerCertificate=True";
+        public List<BookCategoryViewModel> GetBookCategories(int pageNumber, int pageSize)
+        {
+            var result = new List<BookCategoryViewModel>();
 
-        public  async Task<(List<BookBorrowReportViewModel> data, int totalRecords)> GetBookBorrowReportWithPaginationAsync(DateTime? startDate, DateTime? endDate, int pageNumber, int pageSize)
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                using (SqlCommand command = new SqlCommand("BookCategoryNames", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@PageNumber", pageNumber);
+                    command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                    connection.Open();
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add(new BookCategoryViewModel
+                            {
+                                BookId = Convert.ToInt32(reader["BookId"]),
+                                BookName = reader["BookName"].ToString(),
+                                Description = reader["Description"].ToString(),
+                                Author = reader["Author"].ToString(),
+                                Status = reader["Status"].ToString(),
+                                QRCode = reader["QRCode"].ToString(),
+                                PdfFileName = reader["PdfFileName"].ToString(),
+                                ProfileImage = reader["ProfileImage"].ToString(),
+                                CategoryNames = reader["CategoryNames"].ToString(),
+                            });
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<(List<BookBorrowReportViewModel> data, int totalRecords)> GetBookBorrowReportWithPaginationAsync(DateTime? startDate, DateTime? endDate, int pageNumber, int pageSize)
         {
             startDate = startDate ?? DateTime.Now.AddMonths(-1);
             endDate = endDate ?? DateTime.Now;

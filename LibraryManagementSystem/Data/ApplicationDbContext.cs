@@ -14,16 +14,23 @@ namespace LibraryManagementSystem.Data
         {
 
         }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-         
-            modelBuilder.Entity<UserPayment>()
-                .HasOne(up => up.UserBook)               // Navigation property in UserPayment
-                .WithMany(ub => ub.UserPayments)         // Navigation property in UserBooks
-                .HasForeignKey(up => up.UserBookId);     // Foreign key in UserPayment
-        
-        modelBuilder.Entity<Book>(entity =>
+            modelBuilder.Entity<BookCategories>()
+        .HasKey(bc => bc.Id);
+
+            modelBuilder.Entity<BookCategories>()
+                .HasOne(bc => bc.Book)
+                .WithMany(b => b.BookCategories)
+                .HasForeignKey(bc => bc.BookId);
+
+            modelBuilder.Entity<BookCategories>()
+                .HasOne(bc => bc.Category)
+                .WithMany(c => c.BookCategories)
+                .HasForeignKey(bc => bc.CategoryId);
+            // Foreign key in UserPayment
+
+            modelBuilder.Entity<Book>(entity =>
             {
                 entity.Property(e => e.Status)
                       .HasConversion<string>()  // Store the Status as string
@@ -62,6 +69,7 @@ namespace LibraryManagementSystem.Data
       //  public DbSet<UserBooks> UserBooks { get; set; }
         public DbSet<ReservedBooks> ReservedBook { get; set; }
         public DbSet<Category> Category { get; set; }
-       
+        public DbSet<BookCategories> BookCategory { get; set; }
+
     }
 }

@@ -6,6 +6,8 @@
     <title>@ViewData["Title"] - LibraryManagementSystem</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <link rel="stylesheet" href="https://cdn.mobiscroll.com/5.10.0/css/mobiscroll.min.css">
     <link href="~/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Icon Font Stylesheet -->
     <link href="~/fontawesome-free-6.7.2-web/css/all.min.css" rel="stylesheet" />
@@ -63,14 +65,13 @@
                            class="nav-item nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Book" && ViewContext.RouteData.Values["Action"].ToString() == "ViewBook" ? "active" : "")">
                             <i class="bi bi-book me-2"></i>Books
                         </a>
-
                         <a asp-action="Userpayments" asp-controller="Book"
                            class="nav-item nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Book" && ViewContext.RouteData.Values["Action"].ToString() == "Userpayments" ? "active" : "")">
                             <i class="bi bi-wallet2 me-2"></i>All Payments
                         </a>
                          <a asp-action="index" asp-controller="Category"
                            class="nav-item nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Category" && ViewContext.RouteData.Values["Action"].ToString() == "Index" ? "active" : "")">
-                            <i class="bi bi-wallet2 me-2"></i>Books Category
+                            <i class="bi bi-collection me-2"></i>Books Category
                         </a>
       <div class="nav-item dropdown">
             <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">

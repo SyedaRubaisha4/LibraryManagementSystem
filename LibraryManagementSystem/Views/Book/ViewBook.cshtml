@@ -56,11 +56,22 @@
                                                placeholder="Date" value="@(Model?.Book.BookCreationDate)" />
                                         <label for="floatingDate">Book Publishing Date</label>
                                     </div>
+
                                     <div class="form-floating mb-3">
                                         <input type="number" class="form-control" name="Price" id="floatingDate"
                                                placeholder="Date" value="@(Model?.Book.Price)" />
                                         <label for="floatingDate">Book Price</label>
                                     </div>
+                                <div class="form-floating">
+                                    <select id="fruits" name="SelectedCategories" data-placeholder="Select fruits" multiple data-multi-select>
+                                        @foreach (var category in (List<SelectListItem>)ViewData["category"])
+                                        {
+                                            <option value="@category.Value">@category.Text</option>
+                                        }
+                                    </select>
+                                </div>
+
+                              
                                     <div class="form-floating mb-4">
                                         <input type="file" class="form-control" name="Image" accept="image/*" value="@Model.Book.Image" placeholder="Image">
                                         <label for="floatingInput">Book Image</label>
@@ -116,7 +127,7 @@
                                     }
                                 </a>
                             </th>
-
+                            
                             <th scope="col">Description</th>
 
                             <th scope="col">
@@ -163,7 +174,6 @@
                                              width="50" height="50" />
                                     </a>
                                 </td>
-
                                 <td>@item.Name</td>
                                     <td>@item.Description</td>
                                     <td>@item.Author</td>
@@ -374,6 +384,20 @@
         </div>
     </div>
 </div>
+<script src="https://cdn.mobiscroll.com/5.10.0/js/mobiscroll.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#multiple-select').mobiscroll().select({
+            inputElement: document.getElementById('my-input'),
+            touchUi: false
+        });
+    });
+
+   
+
+</script>
+
     <script>
         document.getElementById('searchBox').addEventListener('keypress', function (event) {
             if (event.key === 'Enter') {
