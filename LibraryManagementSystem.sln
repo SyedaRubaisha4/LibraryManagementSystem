@@ -5,7 +5,9 @@ VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibraryManagementSystem", "LibraryManagementSystem\LibraryManagementSystem.csproj", "{D46C5F60-F923-4AF4-B19C-EA28618ADDE2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models", "Models\Models.csproj", "{58E34454-20CE-490F-AD99-F33431B613C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csproj", "{58E34454-20CE-490F-AD99-F33431B613C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryManagementSystem.API", "LibraryManagementSystem.API\LibraryManagementSystem.API.csproj", "{27404410-9F5F-4E5D-87EB-5A27187369DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{58E34454-20CE-490F-AD99-F33431B613C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58E34454-20CE-490F-AD99-F33431B613C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58E34454-20CE-490F-AD99-F33431B613C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27404410-9F5F-4E5D-87EB-5A27187369DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27404410-9F5F-4E5D-87EB-5A27187369DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27404410-9F5F-4E5D-87EB-5A27187369DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27404410-9F5F-4E5D-87EB-5A27187369DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
