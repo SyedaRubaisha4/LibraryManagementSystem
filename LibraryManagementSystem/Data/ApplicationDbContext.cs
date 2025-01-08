@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Models.DBModel;
 namespace LibraryManagementSystem.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext :DbContext
     {
         private IConfiguration _configuration;
 
@@ -22,17 +22,17 @@ namespace LibraryManagementSystem.Data
                 .WithMany(ub => ub.UserPayments)         // Navigation property in UserBooks
                 .HasForeignKey(up => up.UserBookId);     // Foreign key in UserPayment
         
-        modelBuilder.Entity<Book>(entity =>
+            modelBuilder.Entity<Book>(entity =>
             {
                 entity.Property(e => e.Status)
-                      .HasConversion<string>()  // Store the Status as string
-                      .IsRequired();            // Make it required (non-nullable)
+                      .HasConversion<string>()  
+                      .IsRequired();           
             });
             modelBuilder.Entity<User>(entity =>
             {
-                // Configure the 'Status' and 'Roll' properties as strings
+             
                 entity.Property(e => e.Status)
-                      .HasConversion<string>()  // Store as string
+                      .HasConversion<string>() 
                       .IsRequired();            // Make it required
 
                 entity.Property(e => e.Roll)
@@ -58,9 +58,9 @@ namespace LibraryManagementSystem.Data
         public DbSet<User> User { get; set; }
         public DbSet<Book> Book { get; set; }
         public DbSet<UserPayment> UserPayments { get; set; }
-        //  public DbSet<UserBooks> UserBooks { get; set; }
+        
         public DbSet<ReservedBooks> ReservedBook { get; set; }
-
+        public DbSet<BookCategories> BookCategory { get; set; }
         public DbSet<FavoriteBook> FavoriteBooks { get; set; }
         public DbSet<Category> Category { get; set; }
        

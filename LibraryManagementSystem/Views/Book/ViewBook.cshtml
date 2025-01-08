@@ -14,90 +14,14 @@
         <div class="d-flex col-xl-12  justify-content-between">
 
             <h2 class="mb-2"> All Books </h2>
-            <button type="button" class="btn mb-2 text-light" style="border-radius:15px;background-color:darkblue" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                <i class="bi bi-book text-light me-1"></i>   Add Book
-            </button>
+        <button type="button" class="btn text-light mb-2" style="border-radius:15px;background-color:darkblue"
+                data-bs-toggle="modal" data-bs-target="#sharedModal"
+                onclick="loadModalContent(null)">
+            <i class="bi bi-book text-light me-1"></i> Add Book
+        </button>
 
-            <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Add book</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body text-black">
-                            <form method="post" asp-action="@((Model.Book?.Id ?? 0) == 0 ? "Add" : "Update")" asp-controller="Book" enctype="multipart/form-data">
-                                <div class="bg-light rounded h-100 p-4">
-                                    <h6 class="mb-4">@((Model.Book?.Id ?? 0) == 0 ? "Add Book" : "Edit Book")</h6>
 
-                                    <!-- Hidden field for Id -->
-                                    <input type="hidden" name="Id" value="@Model.Book?.Id" />
-
-                                    <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" name="Name" id="floatingInput"
-                                               placeholder="Name" value="@Model.Book?.Name" />
-                                        <label for="floatingInput">Name</label>
-                                    </div>
-
-                                    <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" name="Description" id="floatingDescription"
-                                               placeholder="Description" value="@Model.Book?.Description" />
-                                        <label for="floatingDescription">Description</label>
-                                    </div>
-
-                                    <div class="form-floating mb-3">
-                                        <input type="text" class="form-control" name="Author" id="floatingAuthor"
-                                               placeholder="Author" value="@Model.Book?.Author" />
-                                        <label for="floatingAuthor">Book Author</label>
-                                    </div>
-
-                                    <div class="form-floating mb-3">
-                                        <input type="date" class="form-control" name="BookCreationDate" id="floatingDate"
-                                               placeholder="Date" value="@(Model?.Book.BookCreationDate)" />
-                                        <label for="floatingDate">Book Publishing Date</label>
-                                    </div>
-
-                                    <div class="form-floating mb-3">
-                                        <input type="number" class="form-control" name="Price" id="floatingDate"
-                                               placeholder="Date" value="@(Model?.Book.Price)" />
-                                        <label for="floatingDate">Book Price</label>
-                                    </div>
-                                <div class="form-floating">
-                                    <select id="fruits" name="SelectedCategories" data-placeholder="Select fruits" multiple data-multi-select>
-                                        @foreach (var category in (List<SelectListItem>)ViewData["category"])
-                                        {
-                                            <option value="@category.Value">@category.Text</option>
-                                        }
-                                    </select>
-                                </div>
-
-                              
-                                    <div class="form-floating mb-4">
-                                        <input type="file" class="form-control" name="Image" accept="image/*" value="@Model.Book.Image" placeholder="Image">
-                                        <label for="floatingInput">Book Image</label>
-
-                                    </div>
-                                    <div class="form-floating mb-3">
-                                        <input type="file"
-                                               class="form-control"
-                                               name="PdfFile"
-                                               placeholder="Book"
-                                               accept="application/pdf"
-                                               required />
-                                        <label for="PdfFile">Book</label>
-                                    </div>
-
-                                    <button type="submit" class="btn btn-primary d-flex justify-content-center">Submit</button>
-                                </div>
-                            </form>
-
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            </div>
-                    </div>
-                </div>
-            </div>
+          
 
         </div>
         <div class="col-sm-12 col-xl-12">
@@ -202,96 +126,95 @@
 
                                         <div class="d-inline-flex">
 
-                                            <button type="button" class="btn text-light" style="background-color:darkblue" data-bs-toggle="modal"
-                                                data-bs-target="#exampleModal-@item.Id"
-                                                onclick="setUserId(@item.Id)">
+                                        <button type="button" class="btn text-light" style="background-color:darkblue"
+                                                data-bs-toggle="modal" data-bs-target="#sharedModal"
+                                                onclick="loadModalContent(@item.Id)">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-
-                                            <div class="modal fade" id="exampleModal-@item.Id" data-bs-keyboard="false"
-                                                 tabindex="-1" aria-labelledby="exampleModalLabel-@item.Id" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h1 class="modal-title fs-5" id="exampleModalLabel-@item.Id">Update User</h1>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body text-black">
-                                                        <form method="post" asp-action="Update" asp-controller="Book" class="needs-validation" novalidate enctype="multipart/form-data">
-                                                                <div class="bg-light rounded h-100 p-4">
-                                                           
-                                                                    <div class="form-floating mb-3">
-                                                                        <input type="text" class="form-control" name="Name" id="floatingInput"
-                                                                               placeholder="Name" value="@Model.Book?.Name" />
-                                                                        <label for="floatingInput">Name</label>
-                                                                    </div>
-                                                                    <input type="hidden" name="Id" value="@item.Id" />
-
-                                                                    <div class="form-floating mb-3">
-                                                                        <input type="text" class="form-control" name="Description" id="floatingDescription"
-                                                                               placeholder="Description" value="@Model.Book?.Description" />
-                                                                        <label for="floatingDescription">Description</label>
-                                                                    </div>
-
-                                                                    <div class="form-floating mb-3">
-                                                                        <input type="text" class="form-control" name="Author" id="floatingAuthor"
-                                                                               placeholder="Author" value="@Model.Book?.Author" />
-                                                                        <label for="floatingAuthor">Book Author</label>
-                                                                    </div>
-
-                                                                    <div class="form-floating mb-3">
-                                                                        <input type="date" class="form-control" name="BookCreationDate" id="floatingDate"
-                                                                               placeholder="Date" value="@(Model?.Book.BookCreationDate)" />
-                                                                        <label for="floatingDate">Book Creation Date</label>
-                                                                    </div>
-                                                                <div class="form-floating mb-3">
-                                                                    <input type="number" class="form-control" name="Price" id="floatingDate"
-                                                                           placeholder="Price" value="@(Model?.Book.Price)" />
-                                                                    <label for="floatingDate">Price</label>
-                                                                </div>
-                                                                <div class="form-floating mb-4">
-                                                                        <input type="file" class="form-control" name="profileImage" accept="image/*" id="profileImage-@item.Id" placeholder="Image">
-                                                                    <label for="profileImage">Book Image</label>
-                                                                    <img id="profileImagePreview-@item.Id"
-                                                                         src="@(item.ProfileImage != null ? Url.Content("~/Image/" + @item.ProfileImage) : "~/Image/book.jpeg")"
-                                                                         alt="Book Image"
-                                                                         style="width: 100px; height: 100px; @((item.ProfileImage != null) ? "" : "display: none;")" />
-
-                                                                </div>
-
-
-                                                                <div class="form-floating mb-4">
-                                                                        <input type="file" class="form-control" name="PdfFile" accept="application/pdf" id="pdfFile-@item.Id" placeholder="PDF File">
-                                                                    <label for="pdfFile">Book PDF</label>
-                                                                    @if (!string.IsNullOrEmpty(item.PdfFileName))
-                                                                    {
-                                                                        <a href="@Url.Content("~/Files/" + item.PdfFileName)" target="_blank" class="text-black">View PDF</a>
-                                                                    }
-                                                                </div>
-                                                                    <div class="form-floating mb-4">
-                                                                        <button id="updateQRButton" type="button" class="btn btn-success d-flex justify-content-center">Update QR</button>
-
-                                                                        @if (ViewBag.QrCodeImage != null)
+                                        <div class="modal fade" id="sharedModal" tabindex="-1" aria-labelledby="sharedModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h1 class="modal-title fs-5" id="sharedModalLabel">Update</h1>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form id="bookForm" asp-action="@(Model?.Book?.Id == null ? "Add" : "Update")" method="post" enctype="multipart/form-data">
+                                                          
+                                                            <div class="form-floating mb-3">
+                                                                <input type="text" class="form-control" name="Name" id="bookName" placeholder="Name" />
+                                                                <label for="bookName">Name</label>
+                                                            </div>
+                                                            <div class="form-floating mb-3">
+                                                                <input type="text" class="form-control" name="Description" id="bookDescription" placeholder="Description" />
+                                                                <label for="bookDescription">Description</label>
+                                                            </div>
+                                                            <input type="hidden" name="Id" id="bookId" value="@item.Id" />
+                                                            <div class="form-floating mb-3">
+                                                                <input type="text" class="form-control" name="Author" id="bookAuthor" placeholder="Author" />
+                                                                <label for="bookAuthor">Author</label>
+                                                            </div>
+                                                            <div class="form-floating mb-3">
+                                                                <input type="date" class="form-control" name="BookCreationDate" id="bookCreationDate" placeholder="Creation Date" />
+                                                                <label for="bookCreationDate">Publishing Date</label>
+                                                            </div>
+                                                            <div class="form-floating mb-3">
+                                                                <input type="number" class="form-control" name="Price" id="bookPrice" placeholder="Price" />
+                                                                <label for="bookPrice">Price</label>
+                                                            </div>
+                                                            <div class="form-floating">
+                                                             <div class="form-floating mb-3">
+                                                                 
+                                                           </div>
+                                                                @if(@item.Id==0)
+                                                                {
+                                                                    <select id="fruitss" name="SelectedCategories" data-placeholder="Select Categories" multiple data-multi-select>
+                                                                        @foreach (var category in (List<SelectListItem>)ViewData["category"])
                                                                         {
-                                                                            <div class="mt-4">
-                                                                                <img src="data:image/png;base64,@ViewBag.QrCodeImage" alt="QR Code" />
-                                                                            </div>
+                                                                            <option value="@category.Value">@category.Text</option>
                                                                         }
-                                                                        <div id="qrCodeContainer"></div>
+                                                                    </select>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="dropdown">
+                                                                        <button onclick="toggleDropdown()">Select Options</button>
+                                                                        <div id="options" class="dropdown-content">
+                                                                            <label><input type="checkbox" value="Option 1"> Option 1</label>
+                                                                            <label><input type="checkbox" value="Option 2"> Option 2</label>
+                                                                            <label><input type="checkbox" value="Option 3"> Option 3</label>
+                                                                        </div>
                                                                     </div>
+                                                                    <div class="selected-items"></div>
+                                                                }
+                                                              
+                                                            </div>
+                                                      
+                                                            <div class="form-floating mb-3">
+                                                                <input type="file" class="form-control" name="Image" id="bookImage" accept="image/*" />
+                                                                <label for="bookImage">Book Image</label>
+                                                                <img id="imagePreview" src="" alt="Book Image" style="width: 100px; height: 100px; display: none;" />
+                                                            </div>
 
-                                                                    <button type="submit" class="btn btn-primary d-flex justify-content-center">Submit</button>
-                                                                </div>
-                                                            </form>
+                                                       
+                                                            <div class="form-floating mb-3">
+                                                                <input type="file" class="form-control" name="PdfFile" id="bookPdf" accept="application/pdf" />
+                                                                <label for="bookPdf">Book PDF</label>
+                                                                <a id="pdfPreview" href="#" target="_blank" style="display: none;">View PDF</a>
+                                                            </div>
 
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                        </div>
+                                                            <button type="submit" class="btn btn-primary d-flex justify-content-center">Submit</button>
+                                                        </form>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
 
+                                       
+ 
 
                                             <button type="button" class="btn text-light btn-danger"  data-bs-toggle="modal" data-bs-target="#deleteModal-@item.Id">
                                                 <i class="bi bi-trash"></i>
@@ -384,9 +307,46 @@
         </div>
     </div>
 </div>
-<script src="https://cdn.mobiscroll.com/5.10.0/js/mobiscroll.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    function toggleDropdown() {
+        document.getElementById("options").classList.toggle("show");
+    }
+
+    window.onclick = function (event) {
+        if (!event.target.matches('.dropdown button')) {
+            let dropdowns = document.getElementsByClassName("dropdown-content");
+            for (let i = 0; i < dropdowns.length; i++) {
+                let openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+
+    document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            const text = this.value;
+            const selectedItems = document.querySelector('.selected-items');
+            const existingItem = selectedItems.querySelector(`[data-value="${text}"]`);
+
+            if (this.checked) {
+                if (!existingItem) {
+                    const selectedItem = document.createElement('div');
+                    selectedItem.setAttribute('data-value', text);
+                    selectedItem.innerText = text;
+                    selectedItems.appendChild(selectedItem);
+                }
+            } else {
+                if (existingItem) {
+                    existingItem.remove();
+                }
+            }
+        });
+    });
+</script>
+
+     <script>
     $(document).ready(function () {
         $('#multiple-select').mobiscroll().select({
             inputElement: document.getElementById('my-input'),
@@ -397,7 +357,6 @@
    
 
 </script>
-
     <script>
         document.getElementById('searchBox').addEventListener('keypress', function (event) {
             if (event.key === 'Enter') {
@@ -409,8 +368,6 @@
             document.getElementById('searchForm').submit(); // Submit the form on button click
         });
     </script>
-
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {

@@ -1,24 +1,6 @@
 ﻿@model Models.DTOModel.UserActivity
 <h2 class="d-flex justify-content-center"> Active Users </h2>
-@* <form id="activeUsersForm" method="get" action="/Reports/ActiveUsersReport">
-    <div class="d-flex justify-content-evenly mt-4">
-        <div class="form-group d-flex flex-row">
-            <label for="startDate" class="mt-1 me-2">StartDate:</label>
-            <div>
-                <input type="date" id="startDate" name="startDate" class="form-control" />
-            </div>
-        </div>
-        <div class="form-group d-flex flex-row">
-            <label for="endDate" class="mt-1 me-2">EndDate:</label>
-            <div>
-                <input type="date" id="endDate" name="endDate" class="form-control" />
-            </div>
-        </div>
-        <div>
-            <button type="submit" class="btn" style="background-color: darkblue; color: white;">See Report</button>
-        </div>
-    </div>
-</form> *@
+
 <div class="card-tools py-2 w-100">
     <form method="get" action="@Url.Action("ActiveUsersReport", "Reports")" class="mb-4">
 
