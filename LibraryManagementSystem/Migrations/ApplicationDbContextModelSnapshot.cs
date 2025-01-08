@@ -93,7 +93,7 @@ namespace LibraryManagementSystem.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("BookCategories");
+                    b.ToTable("BookCategory");
                 });
 
             modelBuilder.Entity("Models.DBModel.Category", b =>
@@ -315,28 +315,6 @@ namespace LibraryManagementSystem.Migrations
                     b.HasOne("Models.DBModel.Category", "Category")
                         .WithMany("BookCategories")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Book");
-
-                    b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("Models.DBModel.BookCategories", b =>
-                {
-                    b.HasOne("Models.DBModel.Book", "Book")
-                        .WithMany()
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Models.DBModel.Category", "Category")
-                        .WithMany("BookCategories")
-                        .HasForeignKey("CategoryId")
-                    b.HasOne("Models.DBModel.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
