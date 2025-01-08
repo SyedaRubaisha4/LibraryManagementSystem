@@ -32,6 +32,7 @@ namespace Models.DBModel
         [NotMapped]
         public List<int> CategoryIds { get; set; }
         public virtual ICollection<UserBooks> UserBooks { get; set; }
+        public virtual ICollection<BookCategories> BookCategories { get; set; }
 
 
     }

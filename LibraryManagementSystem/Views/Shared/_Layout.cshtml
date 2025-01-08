@@ -6,7 +6,10 @@
     <title>@ViewData["Title"] - LibraryManagementSystem</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-
+    <link rel="stylesheet" href="filter_multi_select.css" />
+    <script src="filter-multi-select-bundle.min.js"></script>
+    <link rel="stylesheet" href="/path/to/cdn/bootstrap.min.css" />
+    <script src="/path/to/cdn/jquery.slim.min.js"></script>
     <link rel="stylesheet" href="https://cdn.mobiscroll.com/5.10.0/css/mobiscroll.min.css">
     <link href="~/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Icon Font Stylesheet -->
@@ -129,42 +132,73 @@
  
     </div>
     <script>
-        function setUserId(userId) {
+
+        function loadCategories(bookId) {
             $.ajax({
-                url: '/Book/GetUserDetails',
+                url: '/Book/GetBookCategories',
                 type: 'GET',
-                data: { id: userId },
-                success: function (data) {
-                    const modal = $('#exampleModal-' + userId);
+                data: { id: bookId },
+                success: function (categories) {
+                    const categorySelect = document.querySelector('#fruitsss'); // Select the updated dropdown
+                    categorySelect.innerHTML = ''; // Clear existing options
 
-                    // Populate input fields
-                    modal.find('input[name="Name"]').val(data.name);
-                    modal.find('input[name="Description"]').val(data.description);
-                    modal.find('input[name="Author"]').val(data.author);
-                    modal.find('input[name="BookCreationDate"]').val(data.bookCreationDate);
-                    modal.find('input[name="Price"]').val(data.price);
+                    // Add updated options
+                    categories.forEach(category => {
+                        categorySelect.innerHTML += `<option value="${category.id}" ${category.selected ? 'selected' : ''}>${category.name}</option>`;
+                    });
 
-                    // Bind image to the preview element
-                    const imagePreview = modal.find('#profileImagePreview-' + userId);
-                    if (data.profileImage) {
-                        imagePreview.attr('src', data.profileImage).show(); // Show image if it exists
-                    } else {
-                        imagePreview.hide(); // Hide if no image exists
-                    }
-
-                     const pdfLink = modal.find('#pdfFilePreview-' + userId);
-                    if (data.pdfFileName) {
-                        pdfLink.attr('href', data.pdfFileName).show(); // Show PDF link if it exists
-                    } else {
-                        pdfLink.hide(); // Hide if no PDF exists
-                    }
+                    // Reinitialize MultiSelect for the updated dropdown
+                    initializeMultiSelect([categorySelect]);
                 },
                 error: function (xhr, status, error) {
-                    console.error('Error fetching book details:', error);
-                    alert('Failed to fetch book details.');
+                    console.error('Error fetching categories:', error);
                 }
             });
         }
+
+        function loadModalContent(bookId) {
+            if (bookId) {
+                $.ajax({
+                    url: '/Book/GetUserDetails',
+                    type: 'GET',
+                    data: { id: bookId },
+                    success: function (data) {
+                        $('#bookForm').find('input[name="Name"]').val(data.name);
+                        $('#bookForm').find('input[name="Description"]').val(data.description);
+                        $('#bookForm').find('input[name="Author"]').val(data.author);
+                        $('#bookForm').find('input[name="BookCreationDate"]').val(data.bookCreationDate);
+                        $('#bookForm').find('input[name="Price"]').val(data.price);
+
+                       
+                        const imagePreview = $('#imagePreview');
+                        if (data.profileImage) {
+                            imagePreview.attr('src', data.profileImage).show(); // Show image if it exists
+                        } else {
+                            imagePreview.hide(); 
+                        }
+
+                         const pdfPreview = $('#pdfPreview');
+                        if (data.pdfFileName) {
+                            pdfPreview.attr('href', data.pdfFileName).show(); 
+                        } else {
+                            pdfPreview.hide(); 
+                        }
+
+                        loadCategories(bookId);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching book details:', error);
+                    }
+                });
+            } else {
+                // Clear the form for adding a new book
+                $('#bookForm')[0].reset();
+                $('#imagePreview').hide();
+                $('#pdfPreview').hide();
+                loadCategories(0); // No selected categories for a new book
+            }
+        }
+
 
 
 
