@@ -1,5 +1,7 @@
 ﻿<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
 @model Models.DTOModel.UserViewModel
 <div class="  " >
@@ -161,6 +163,34 @@
                                             <label for="emailInput">Email</label>
                                             <div class="invalid-feedback" id="emailFeedback" style="display: none;">A valid email is required.</div>
                                         </div>
+
+                                        <div class="form-floating mb-4 d-flex">
+                                            <div class=" form-floating mx-1">
+                                                <input type="text" name="UniversityName" class="form-control" placeholder="University Name" value="@Model.User.UniversityName" id="universityNameInput">
+                                                <label for="universityNameInput">University Name</label>
+                                            </div>
+
+                                            <div class="form-floating ml-1">
+                                                <input type="text" name="UniversityAddress" class="form-control" placeholder="University Address" value="@Model.User.UniversityAddress" id="universityAddressInput">
+                                                <label for="universityAddressInput">University Address</label>
+
+                                            </div>
+                                        </div>
+
+                                        <div class="form-floating mb-4 d-flex">
+                                            <div class=" form-floating mx-1">
+                                                <input type="text" name="Latitude" class="form-control" placeholder="Latitude" value="@Model.User.Latitude" id="latitudeInput">
+                                                <label for="latitudeInput">Latitude</label>
+                                            </div>
+
+                                            <div class="form-floating ml-1">
+                                                <input type="text" name="Longitude" class="form-control" placeholder="Longitude" value="@Model.User.Longitude" id="longitudeInput">
+                                                <label for="longitudeInput">Longitude</label>
+
+                                            </div>
+                                        </div>
+
+
                                     </div>
                                 </form>
                             </div>
@@ -184,10 +214,33 @@
                     <thead>
                         <tr>
                             <td style=" text-align: right; " colspan="15">
-                                <form method="get" asp-action="AddUser" asp-controller="User" id="searchForm" class="d-flex justify-content-end">
-                                    <input type="text" name="searchQuery" id="searchBox" class="form-control me-1" placeholder="Search..." style="width: 20%;" value="@ViewBag.SearchQuery">
-                                    <button type="submit" class="btn " style="border-radius:60%;background-color:lightpink;opacity:0.7"><i class="bi bi-search text-black"></i></button>
-                                </form>
+
+                            <div class="d-flex  w-100 justify-content-end">
+                                        <div class=" me-2">
+                                            <form method="get" asp-action="AddUser" asp-controller="User" id="filterForm">
+                                                <select class="form-select" name="selectedUniversity" aria-label="Filter Users by university" id="universitySelect" onchange="this.form.submit()">
+                                                    <option value="">Select University</option> 
+                                                    @foreach (var university in (List<SelectListItem>)ViewData["UniversityList"])
+                                                    {
+                                                        <option value="@university.Value">@university.Text</option>
+                                                    }
+
+                                                    <!-- Reset Option -->
+                                                    @if (!string.IsNullOrEmpty(ViewBag.SelectedUniversity))
+                                                    {
+                                                        <option value="" style="color: red;">Reset Filter</option>
+                                                    }
+                                                </select>
+                                            </form>
+                                        </div>
+
+                                        <div class="w-25">
+                                            <form method="get" asp-action="AddUser" asp-controller="User" id="searchForm" class="d-flex justify-content-end">
+                                                <input type="text" name="searchQuery" id="searchBox" class="form-control me-1" placeholder="Search..." style="width: 100%;" value="@ViewBag.SearchQuery">
+                                                <button type="submit" class="btn " style="border-radius:60%;background-color:lightpink;opacity:0.7"><i class="bi bi-search text-black"></i></button>
+                                            </form>
+                                        </div>
+                            </div>
                             </td>
                         </tr>
                         <tr>
@@ -307,6 +360,7 @@
                                                                 <div class="invalid-feedback">Last name is required.</div>
                                                             </div>
 
+                                                                   
 
                                                             <div class="form-floating mb-4">
                                                                 <input type="number" class="form-control" name="Age" id="Age" placeholder="Age" required min="18" max="100">
@@ -350,6 +404,42 @@
                                                                 <label for="emailInput">Email</label>
                                                                 <div class="invalid-feedback" id="emailFeedback" style="display: none;">A valid email is required.</div>
                                                             </div>
+                                                                    <div class="form-floating mb-4 d-flex">
+                                                                        <div class=" form-floating mx-1">
+                                                                            <input type="text" name="UniversityName" class="form-control" placeholder="University Name" id="universityNameInput">
+                                                                            <label for="universityNameInput">University Name</label>
+                                                                        </div>
+
+                                                                        <div class="form-floating ml-1">
+                                                                            <input type="text" name="UniversityAddress" class="form-control" placeholder="University Address" id="universityAddressInput">
+                                                                            <label for="universityAddressInput">University Address</label>
+
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="form-floating mb-4 d-flex">
+                                                                        <div class=" form-floating mx-1">
+                                                                            <input type="text" name="Latitude" class="form-control" placeholder="Latitude" id="latitudeInput">
+                                                                            <label for="latitudeInput">Latitude</label>
+                                                                        </div>
+                                                                  
+                                                                            <div class="form-floating ml-1">
+                                                                                <input type="text" name="Longitude" class="form-control" placeholder="Longitude" id="longitudeInput">
+                                                                                <label for="longitudeInput">Longitude</label>
+                                                                           
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <div class="text-center mb-4">
+                                                                        <button type="button" class="btn btn-secondary" onclick="triggerLocationDetection('exampleModal-@item.Id')" style="border-radius: 15px;">
+                                                                            <i class="bi bi-geo-alt"></i> update Location
+                                                                        </button>
+                                                                    </div>
+
+                                                                
+
+                                                                  
 
                                                             <button type="submit" class="btn btn-primary py-3 w-100 mb-4">
                                                                 Submit
@@ -417,6 +507,13 @@
     </div>
 </div>
 <script>
+    $(document).ready(function () {
+        // Set the selected university after the page loads
+        var selectedUniversity = '@ViewBag.SelectedUniversity';
+        if (selectedUniversity) {
+            $('#universitySelect').val(selectedUniversity);
+        }
+    });
     document.getElementById('searchBox').addEventListener('keypress', function (event) {
         if (event.key === 'Enter') {
             document.getElementById('searchForm').submit(); // Submit the form on Enter key press
@@ -551,6 +648,9 @@
 </script>
 
 <script>
+    $('selectt').selectpicker();
+
+
     document.addEventListener("DOMContentLoaded", function () {
         var toastElList = [].slice.call(document.querySelectorAll('.toast'));
         var toastList = toastElList.map(function (toastEl) {
@@ -561,8 +661,52 @@
         toastList.forEach(toast => toast.show());
     });
 </script>
-
 <script>
+    // Function to get user's location
+    function setUserLocation(modalId) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    // Set the latitude and longitude in the modal
+                    document.querySelector(`#${modalId} #latitudeInput`).value = latitude;
+                    document.querySelector(`#${modalId} #longitudeInput`).value = longitude;
+                },
+                (error) => {
+                    console.error("Error fetching location:", error);
+                }
+            );
+        } else {
+            console.error("Geolocation is not supported by this browser.");
+        }
+    }
+
+    // Add event listeners for modal open
+    document.addEventListener('DOMContentLoaded', () => {
+        // Add user modal
+        const addUserModal = document.querySelector('#staticBackdrop');
+        addUserModal.addEventListener('shown.bs.modal', () => {
+            setUserLocation('staticBackdrop');
+        });
+
+        // Update user modal
+        const updateUserModals = document.querySelectorAll('[id^="exampleModal-"]');
+        updateUserModals.forEach((modal) => {
+            modal.addEventListener('shown.bs.modal', () => {
+                // Remove automatic location detection here
+            });
+        });
+    });
+
+    // Function to trigger location detection manually
+    function triggerLocationDetection(modalId) {
+        setUserLocation(modalId);
+    }
+</script>
+<script>
+
     function setUsersId(userId) {
         // Make an AJAX request to fetch user data by ID
         $.ajax({
@@ -580,6 +724,10 @@
                 modal.find('input[name="Gender"]').val(data.gender);
                 modal.find('input[name="Password"]').val(data.password);
                 modal.find('input[name="Email"]').val(data.email);
+                modal.find('input[name="Latitude"]').val(data.latitude);
+                modal.find('input[name="Longitude"]').val(data.longitude);
+                modal.find('input[name="UniversityName"]').val(data.universityName);
+                modal.find('input[name="UniversityAddress"]').val(data.universityAddress);
 
                 // Bind image to the preview element
                 const imagePreview = modal.find('#profileImagePreview-' + userId);

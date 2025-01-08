@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Models.DBModel;
 using Models.DTOModel;
@@ -20,14 +21,19 @@ namespace LibraryManagementSystem.Controllers
             _context = context;
         }
 
-        public IActionResult AddUser(int page = 1, int pageSize = 3, string searchQuery = "", string sortBy = "Id", bool isAscending = true, string universityFilter = "")
+
+        public IActionResult AddUser(int page = 1, int pageSize = 3, string searchQuery = "", string sortBy = "Id", bool isAscending = true, string selectedUniversity = "")
         {
             var query = _context.User.AsQueryable();
             var universityList = _context.User
-      .Select(u => u.UniversityName)
+      .Select(u => new SelectListItem
+      {
+          Value = u.UniversityName,
+          Text = u.UniversityName
+      })
       .Distinct()
       .ToList();
-            ViewBag.UniversityList = universityList;
+            ViewData["UniversityList"] = universityList;
             if (!string.IsNullOrEmpty(searchQuery))
             {
                 query = query.Where(u => u.FirstName.Contains(searchQuery) || u.LastName.Contains(searchQuery));
@@ -42,13 +48,14 @@ namespace LibraryManagementSystem.Controllers
                 _ => query.OrderByDescending(u => u.Id),
             };
 
-            if (!string.IsNullOrEmpty(universityFilter))
+            if (!string.IsNullOrEmpty(selectedUniversity))
             {
-                query = query.Where(u => u.UniversityName == universityFilter);
+                query = query.Where(u => u.UniversityName == selectedUniversity);
             }
 
             var totalCount = query.Count();
             var users = query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            ViewBag.SelectedUniversity = selectedUniversity;
 
             ViewBag.Users = users;
             ViewBag.CurrentPage = page;
@@ -203,7 +210,7 @@ namespace LibraryManagementSystem.Controllers
 
         }
         [HttpPost]
-        public IActionResult Add(string FirstName, string LastName, string Age, string Gender, DateTime DateofBirth, string Password, string Email, IFormFile? Image)
+        public IActionResult Add(string FirstName, string LastName, string Age, string Gender, DateTime DateofBirth, string Password, string Email, IFormFile? Image, double? Latitude, double? Longitude, string? UniversityName, string? UniversityAddress)
         {
             var user = _context.User.FirstOrDefault(u => u.Email == Email);
             if (user != null)
@@ -219,6 +226,10 @@ namespace LibraryManagementSystem.Controllers
                 DateOfBirth = DateofBirth,
                 Password = Password,
                 Email = Email,
+                Latitude = Latitude,
+                Longitude = Longitude,
+                UniversityName = UniversityName,
+                UniversityAddress = UniversityAddress,
                 UserAddedDate = DateTime.Now,
                 Roll = Roll.User.ToString(),
                 Status = UserStatus.Active.ToString(),
@@ -278,7 +289,11 @@ namespace LibraryManagementSystem.Controllers
                 gender = user.Gender,
                 password = user.Password,
                 profileImage = Url.Content("~/Image/" + user.ProfileImage),
-                email = user.Email
+                email = user.Email,
+                latitude = user.Latitude,
+                longitude = user.Longitude,
+                universityName = user.UniversityName,
+                universityAddress = user.UniversityAddress
             };
 
 
@@ -311,7 +326,7 @@ namespace LibraryManagementSystem.Controllers
         }
 
         [HttpPost]
-        public IActionResult Update(string FirstName, string LastName, string Age, string Gender, DateTime DateofBirth, string Password, string Email, int Id, IFormFile? profileImage)
+        public IActionResult Update(string FirstName, string LastName, string Age, string Gender, DateTime DateofBirth, string Password, string Email, int Id, IFormFile? profileImage, double? Latitude, double? Longitude, string? UniversityName, string? UniversityAddress)
         {
             var user = _context.User.FirstOrDefault(u => u.Id == Id);
             if (user == null)
@@ -326,6 +341,11 @@ namespace LibraryManagementSystem.Controllers
             user.DateOfBirth = DateofBirth;
             user.Password = Password;
             user.Email = Email;
+            user.Latitude = Latitude;
+            user.Longitude = Longitude;
+            user.UniversityName = UniversityName;
+            user.UniversityAddress = UniversityAddress;
+
             user.UserAddedDate = DateTime.Now;
             string img = user.ProfileImage;
             if (img != null)

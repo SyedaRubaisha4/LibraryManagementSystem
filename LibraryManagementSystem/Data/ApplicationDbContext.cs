@@ -16,18 +16,18 @@ namespace LibraryManagementSystem.Data
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-         
+
             modelBuilder.Entity<UserPayment>()
                 .HasOne(up => up.UserBook)               // Navigation property in UserPayment
                 .WithMany(ub => ub.UserPayments)         // Navigation property in UserBooks
                 .HasForeignKey(up => up.UserBookId);     // Foreign key in UserPayment
-        
-        modelBuilder.Entity<Book>(entity =>
-            {
-                entity.Property(e => e.Status)
-                      .HasConversion<string>()  // Store the Status as string
-                      .IsRequired();            // Make it required (non-nullable)
-            });
+
+            modelBuilder.Entity<Book>(entity =>
+                {
+                    entity.Property(e => e.Status)
+                          .HasConversion<string>()  // Store the Status as string
+                          .IsRequired();            // Make it required (non-nullable)
+                });
             modelBuilder.Entity<User>(entity =>
             {
                 // Configure the 'Status' and 'Roll' properties as strings
@@ -63,6 +63,7 @@ namespace LibraryManagementSystem.Data
 
         public DbSet<FavoriteBook> FavoriteBooks { get; set; }
         public DbSet<Category> Category { get; set; }
-       
+
+
     }
 }
