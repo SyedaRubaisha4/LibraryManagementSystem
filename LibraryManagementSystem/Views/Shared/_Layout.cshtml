@@ -2,15 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - LibraryManagementSystem</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
     <link rel="stylesheet" href="filter_multi_select.css" />
     <script src="filter-multi-select-bundle.min.js"></script>
     <link rel="stylesheet" href="/path/to/cdn/bootstrap.min.css" />
     <script src="/path/to/cdn/jquery.slim.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.mobiscroll.com/5.10.0/css/mobiscroll.min.css">
     <link href="~/css/bootstrap.min.css" rel="stylesheet" />
     <!-- Icon Font Stylesheet -->
     <link href="~/fontawesome-free-6.7.2-web/css/all.min.css" rel="stylesheet" />
@@ -33,8 +35,7 @@
             background-color: white; /* Bootstrap primary color (blue) */
             color: darkblue !important;
             font-weight: bold;
-            /* Change text color to white */
-             /* Optional: Make the text bold */
+           
         }
 
     </style>
@@ -131,6 +132,9 @@
 
  
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
 
         function loadCategories(bookId) {
@@ -139,22 +143,33 @@
                 type: 'GET',
                 data: { id: bookId },
                 success: function (categories) {
-                    const categorySelect = document.querySelector('#fruitsss'); // Select the updated dropdown
-                    categorySelect.innerHTML = ''; // Clear existing options
+                    const categorySelect = document.querySelector('select[name="SelectedCategories"]');
+                    categorySelect.innerHTML = ''; 
 
-                    // Add updated options
                     categories.forEach(category => {
-                        categorySelect.innerHTML += `<option value="${category.id}" ${category.selected ? 'selected' : ''}>${category.name}</option>`;
+                        const option = document.createElement('option');
+                        option.value = category.id;
+                        option.textContent = category.name;
+                        if (category.selected) {
+                            option.selected = true;
+                        }
+                        categorySelect.appendChild(option);
                     });
 
-                    // Reinitialize MultiSelect for the updated dropdown
-                    initializeMultiSelect([categorySelect]);
+                 
+                    $(categorySelect).select2({
+                        placeholder: "Select Categories",
+                        allowClear: true
+                    });
                 },
                 error: function (xhr, status, error) {
                     console.error('Error fetching categories:', error);
                 }
             });
         }
+
+
+
 
         function loadModalContent(bookId) {
             if (bookId) {
@@ -172,7 +187,7 @@
                        
                         const imagePreview = $('#imagePreview');
                         if (data.profileImage) {
-                            imagePreview.attr('src', data.profileImage).show(); // Show image if it exists
+                            imagePreview.attr('src', data.profileImage).show(); 
                         } else {
                             imagePreview.hide(); 
                         }

@@ -135,7 +135,7 @@
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h1 class="modal-title fs-5" id="sharedModalLabel">Update</h1>
+                                                        <h1 class="modal-title fs-5" id="sharedModalLabel">@(@item.Id == null ? "Add" : "Update")</h1>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
@@ -166,30 +166,13 @@
                                                              <div class="form-floating mb-3">
                                                                  
                                                            </div>
-                                                                @if(@item.Id==0)
-                                                                {
-                                                                    <select id="fruitss" name="SelectedCategories" data-placeholder="Select Categories" multiple data-multi-select>
-                                                                        @foreach (var category in (List<SelectListItem>)ViewData["category"])
-                                                                        {
-                                                                            <option value="@category.Value">@category.Text</option>
-                                                                        }
-                                                                    </select>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <div class="dropdown">
-                                                                        <button onclick="toggleDropdown()">Select Options</button>
-                                                                        <div id="options" class="dropdown-content">
-                                                                            <label><input type="checkbox" value="Option 1"> Option 1</label>
-                                                                            <label><input type="checkbox" value="Option 2"> Option 2</label>
-                                                                            <label><input type="checkbox" value="Option 3"> Option 3</label>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="selected-items"></div>
-                                                                }
-                                                              
+                                                                <select name="SelectedCategories" data-placeholder="Select Categories" multiple="multiple">
+                                                                    @foreach (var category in (List<SelectListItem>)ViewData["category"])
+                                                                    {
+                                                                        <option value="@category.Value">@category.Text</option>
+                                                                    }
+                                                                </select>
                                                             </div>
-                                                      
                                                             <div class="form-floating mb-3">
                                                                 <input type="file" class="form-control" name="Image" id="bookImage" accept="image/*" />
                                                                 <label for="bookImage">Book Image</label>
@@ -302,11 +285,38 @@
 
 
             </div>
-        
-   
+
+          
+
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+        $('#categor').select2({
+            placeholder: "Select Categories",
+            allowClear: true
+        });
+    });
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const bookId = $('#bookId').val(); 
+        if (bookId) {
+            loadCategories(bookId); 
+        }
+
+      
+        $('select[name="SelectedCategories"]').select2({
+            placeholder: "Select Categories",
+            allowClear: true
+        });
+    });
+
+
+</script>
+
 <script>
     function toggleDropdown() {
         document.getElementById("options").classList.toggle("show");
@@ -346,17 +356,7 @@
     });
 </script>
 
-     <script>
-    $(document).ready(function () {
-        $('#multiple-select').mobiscroll().select({
-            inputElement: document.getElementById('my-input'),
-            touchUi: false
-        });
-    });
-
    
-
-</script>
     <script>
         document.getElementById('searchBox').addEventListener('keypress', function (event) {
             if (event.key === 'Enter') {
@@ -368,7 +368,7 @@
             document.getElementById('searchForm').submit(); // Submit the form on button click
         });
     </script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script>
         $(document).ready(function () {
             $("#updateQRButton").click(function () {
