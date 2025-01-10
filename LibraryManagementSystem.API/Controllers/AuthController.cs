@@ -65,9 +65,9 @@ namespace LibraryManagementSystem.API.Controllers
                    Image.CopyTo(fileStream);
                 }
 
-                User.ProfileImage = "b2.png";
+                User.ProfileImage = uniqueFileName;
             }
-        
+               _context.User.Add(User);
             await _context.SaveChangesAsync();
 
             return Ok("User created successfully.");
@@ -78,13 +78,11 @@ namespace LibraryManagementSystem.API.Controllers
         public async Task<IActionResult> login([FromBody] LoginRequest model)
         {
             var user = await _context.User.FirstOrDefaultAsync(u => u.Email == model.Email);
-            Console.WriteLine(user.Password);
-            Console.WriteLine(model.Password);
-
+          
             //if (user == null || !BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
             //    return Unauthorized("Invalid credentials.");
 
-           
+
             var accessToken = _jwtTokenHelper.GenerateToken(user);
 
             var refreshToken = GenerateRefreshToken();

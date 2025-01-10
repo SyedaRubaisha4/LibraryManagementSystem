@@ -13,7 +13,6 @@ namespace Models.DBModel
         public string FirstName { get; set; }
         [Required]
         public string LastName { get; set; }
-
         public string Email { get; set; }
         [Required]
         public string Status { get; set; }
@@ -30,7 +29,6 @@ namespace Models.DBModel
         public string Age { get; set; }
         [Required]
         public string Gender { get; set; }
-
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
         public string ResetToken { get; set; }

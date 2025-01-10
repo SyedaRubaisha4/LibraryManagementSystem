@@ -19,7 +19,6 @@ namespace LibraryManagementSystem.API.Controllers
             _context = context;
 
         }
-
         [HttpGet("GetAllBooks")]
         public async Task<IActionResult> GetAllBooks()
         {
@@ -34,8 +33,6 @@ namespace LibraryManagementSystem.API.Controllers
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
-
-
         [HttpGet("GetBookById/{id}")]
         public async Task<IActionResult> GetBookById(int id)
         {
@@ -59,10 +56,7 @@ namespace LibraryManagementSystem.API.Controllers
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
-
-
         [HttpPost("CreateBook")]
-
         public async Task<IActionResult> CreateBook(AddBookDTO bookDto)
         {
             try
@@ -81,8 +75,6 @@ namespace LibraryManagementSystem.API.Controllers
                     BookAddedDate = DateTime.Now,
                     BookCreationDate = DateOnly.FromDateTime(DateTime.Now),
                     QRCode = bookDto.QRCode,
-
-
                 };
                 if (bookDto.Image != null)
                 {
@@ -102,24 +94,17 @@ namespace LibraryManagementSystem.API.Controllers
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
-
-
         [HttpPut("UpdateBook/{id}")]
         public async Task<IActionResult> UpdateBook(int id, UpdateBookDto bookDto)
         {
             var book = await _context.Book.Include(b => b.BookCategories).FirstOrDefaultAsync(b => b.Id == id);
             if (book == null)
                 return NotFound(new { Message = $"Book with id {id} not found" });
-
-
             book.Name = bookDto.Name;
             book.Description = bookDto.Description;
             book.Price = bookDto.Price;
             book.Author = bookDto.Author;
             book.Status = bookDto.Status;
-
-
-
             if (bookDto.Image != null)
             {
                 book.ProfileImage = await FileHelper.SaveFileAsync(bookDto.Image, "images");
@@ -163,10 +148,6 @@ namespace LibraryManagementSystem.API.Controllers
 
             return Ok(book);
         }
-
-
-
-
         [HttpDelete("DeleteBookById/{id}")]
         public async Task<IActionResult> DeleteBookById(int id)
         {
@@ -193,9 +174,5 @@ namespace LibraryManagementSystem.API.Controllers
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
-
-
-
-
     }
 }

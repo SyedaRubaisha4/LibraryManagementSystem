@@ -28,7 +28,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 // Add services to the container.
 builder.Services.AddControllers();
-
+builder.Services.AddAutoMapper(typeof(Program));
 // Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 
