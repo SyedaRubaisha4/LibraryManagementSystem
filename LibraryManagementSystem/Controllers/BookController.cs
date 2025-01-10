@@ -259,6 +259,10 @@ namespace LibraryManagementSystem.Controllers
 
         }
 
+        public IActionResult test()
+        {
+            return View();
+        }
         [HttpGet]
         public IActionResult GetUserDetails(int id)
         {
@@ -284,20 +288,22 @@ namespace LibraryManagementSystem.Controllers
         {
             var bookCategories = _context.BookCategory
                 .Where(bc => bc.BookId == id)
-                .Select(bc => bc.CategoryId) // Get Category IDs for the book
+                .Select(bc => bc.CategoryId)
                 .ToList();
 
-             var allCategories = _context.Category
+            var categories = _context.Category
                 .Select(c => new
                 {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Selected = bookCategories.Contains(c.Id) // Mark categories already assigned to the book
+                    id = c.Id,
+                    name = c.Name,
+                    selected = bookCategories.Contains(c.Id)
                 })
                 .ToList();
 
-            return Json(allCategories);
+            return Json(categories);
         }
+
+
 
         public IActionResult UserBooks([FromBody] ReserveBookRequesting request)
         {
