@@ -2,7 +2,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Models.DBModel;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
+using Models.DTOModel.Users;
+using Utility;
+
 namespace Models.DTOModel.JWT
 {
     public class JwtTokenHelper
@@ -10,35 +15,36 @@ namespace Models.DTOModel.JWT
         private readonly string _key;
         private readonly string _issuer;
         private readonly string _audience;
-        private readonly int _expiryMinutes;
+  
         public JwtTokenHelper(IConfiguration configuration)
         {
-            
             _key = configuration["Jwt:Key"];
             _issuer = configuration["Jwt:Issuer"];
             _audience = configuration["Jwt:Audience"];
-            _expiryMinutes = int.Parse(configuration["Jwt:ExpiryMinutes"]);
         }
-        public string GenerateToken(string username)
+        public string GenerateToken(User user)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_key);
+            var issuer = SharedUtilityConnection.AppConfiguration["JWT:ValidIssuer"];
+            var sceretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SharedUtilityConnection.AppConfiguration["JWT:Secret"]));
+            var signingCredentials = new SigningCredentials(sceretKey, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(
+                           issuer: issuer,
+                           audience: issuer,
+                           claims: MapClaims(user),
+                           expires: DateTime.Now.AddDays(1),
+                           signingCredentials: signingCredentials);
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                new Claim(ClaimTypes.Name, username),
-                new Claim(ClaimTypes.Role, "User") 
-            }),
-                Expires = DateTime.UtcNow.AddMinutes(_expiryMinutes), 
-                Issuer = _issuer,
-                Audience = _audience,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var jwttoken = new JwtSecurityTokenHandler().WriteToken(token);
+            return jwttoken;
+        }
+        List<Claim> MapClaims(User userDto)
+        {
+            List<Claim> claim = new List<Claim>();
+            claim.Add(new Claim("Id", userDto.Id.ToString()));
+            claim.Add(new Claim("FirstName", userDto.FirstName));
+            claim.Add(new Claim("Email", userDto.Email));
+            claim.Add(new Claim("LastName", userDto.LastName));
+            return claim;
         }
     }
 

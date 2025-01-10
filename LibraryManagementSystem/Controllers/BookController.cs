@@ -259,6 +259,10 @@ namespace LibraryManagementSystem.Controllers
 
         }
 
+        public IActionResult test()
+        {
+            return View();
+        }
         [HttpGet]
         public IActionResult GetUserDetails(int id)
         {
