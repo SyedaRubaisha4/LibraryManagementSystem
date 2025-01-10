@@ -1,9 +1,7 @@
 using LibraryManagementSystem.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
 using Models.DTOModel;
-using Models.DBModel;
 namespace LibraryManagementSystem
 {
     public class Program
@@ -19,16 +17,16 @@ namespace LibraryManagementSystem
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
             builder.Services.AddSingleton<EmailService>(sp =>
      new EmailService(
-         sp.GetRequiredService<IConfiguration>(),  
+         sp.GetRequiredService<IConfiguration>(),
          builder.Configuration["EmailSettings:Host"],
          builder.Configuration["EmailSettings:Port"],
          builder.Configuration["EmailSettings:Username"],
          builder.Configuration["EmailSettings:Password"],
          builder.Configuration["EmailSettings:FromEmail"]
      )
-     
+
 );
-           
+
 
             builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 
@@ -51,7 +49,7 @@ namespace LibraryManagementSystem
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                 app.UseHsts();
+                app.UseHsts();
             }
 
             app.UseHttpsRedirection();

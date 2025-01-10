@@ -3,7 +3,7 @@ namespace Models.DTOModel
 {
     public class BookListViewModel
     {
-        public List<Book> Books { get; set; }
+        public List<Models.DBModel.Book> Books { get; set; }
         public List<User> Users { get; set; }
     }
 }

@@ -1,11 +1,9 @@
-﻿
-using Models.DBModel;
-namespace Models.DTOModel
+﻿namespace Models.DTOModel
 {
     public class BookViewModal
     {
-        public IEnumerable<Book> Books { get; set; }
-        public Book Book { get; set; }
-        
+        public IEnumerable<Models.DBModel.Book> Books { get; set; }
+        public Models.DBModel.Book Book { get; set; }
+
     }
 }
