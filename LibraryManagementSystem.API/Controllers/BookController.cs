@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.API.Helpers;
 using LibraryManagementSystem.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models.DBModel;
@@ -20,13 +21,35 @@ namespace LibraryManagementSystem.API.Controllers
 
         }
         [HttpGet("GetAllBooks")]
+        [Authorize]
         public async Task<IActionResult> GetAllBooks()
         {
             try
             {
-                var books = await _context.Book.ToListAsync();
-                return Ok(books);
 
+                var baseUrl = $"{Request.Scheme}://{Request.Host.Value}/wwwroot";
+
+                var books = await _context.Book.Select(book => new BookDetailDTO
+                {
+                    Id = book.Id,
+                    Name = book.Name,
+                    Description = book.Description,
+                    Price = book.Price,
+                    Author = book.Author,
+                    Status = book.Status,
+                    BookCreationDate = book.BookCreationDate,
+                    ImagePath = !string.IsNullOrEmpty(book.ProfileImage)
+                                ? $"{baseUrl}{book.ProfileImage}"
+                                : null,
+                    PdfFilePath = !string.IsNullOrEmpty(book.PdfFileName)
+                                ? $"{baseUrl}{book.PdfFileName}"
+                                : null,
+                    QRCode = !string.IsNullOrEmpty(book.QRCode)
+                                ? $"{baseUrl}{book.QRCode}"
+                                : null,
+                }).ToListAsync();
+
+                return Ok(books);
             }
             catch (Exception ex)
             {
@@ -41,21 +64,41 @@ namespace LibraryManagementSystem.API.Controllers
                 var book = await _context.Book.FirstOrDefaultAsync(b => b.Id == id);
                 if (book == null)
                 {
-                    return NotFound(
-                        new
-                        {
-                            Message = $"Book with id {id} not found"
-                        }
-                        );
+                    return NotFound(new { Message = $"Book with id {id} not found" });
                 }
-                return Ok(book);
 
+
+                var baseUrl = $"{Request.Scheme}://{Request.Host.Value}/wwwroot";
+
+
+                var bookDetails = new BookDetailDTO
+                {
+                    Id = book.Id,
+                    Name = book.Name,
+                    Description = book.Description,
+                    Price = book.Price,
+                    Author = book.Author,
+                    Status = book.Status,
+                    BookCreationDate = book.BookCreationDate,
+                    ImagePath = !string.IsNullOrEmpty(book.ProfileImage)
+                                ? $"{baseUrl}{book.ProfileImage}"
+                                : null,
+                    PdfFilePath = !string.IsNullOrEmpty(book.PdfFileName)
+                                ? $"{baseUrl}{book.PdfFileName}"
+                                : null,
+                    QRCode = !string.IsNullOrEmpty(book.QRCode)
+                                ? $"{baseUrl}{book.QRCode}"
+                                : null,
+                };
+
+                return Ok(bookDetails);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { Message = ex.Message });
             }
         }
+
         [HttpPost("CreateBook")]
         public async Task<IActionResult> CreateBook(AddBookDTO bookDto)
         {
@@ -65,8 +108,10 @@ namespace LibraryManagementSystem.API.Controllers
                 {
                     return BadRequest(ModelState);
                 }
+                string qrCodeImagePath = FileHelper.GenerateQrCodeAsync(bookDto.Name);
                 var book = new Book
                 {
+
                     Name = bookDto.Name,
                     Description = bookDto.Description,
                     Price = bookDto.Price,
@@ -74,7 +119,9 @@ namespace LibraryManagementSystem.API.Controllers
                     Status = Status.Active,
                     BookAddedDate = DateTime.Now,
                     BookCreationDate = DateOnly.FromDateTime(DateTime.Now),
-                    QRCode = bookDto.QRCode,
+                    QRCode = qrCodeImagePath,
+
+
                 };
                 if (bookDto.Image != null)
                 {
@@ -87,7 +134,29 @@ namespace LibraryManagementSystem.API.Controllers
                 _context.Book.Add(book);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(GetBookById), new { id = book.Id }, book);
+                var baseUrl = $"{Request.Scheme}://{Request.Host.Value}/wwwroot";
+
+                var bookDetails = new BookDetailDTO
+                {
+                    Id = book.Id,
+                    Name = book.Name,
+                    Description = book.Description,
+                    Price = book.Price,
+                    Author = book.Author,
+                    Status = book.Status,
+                    BookCreationDate = book.BookCreationDate,
+                    ImagePath = !string.IsNullOrEmpty(book.ProfileImage)
+                                ? $"{baseUrl}{book.ProfileImage}"
+                                : null,
+                    PdfFilePath = !string.IsNullOrEmpty(book.PdfFileName)
+                                ? $"{baseUrl}{book.PdfFileName}"
+                                : null,
+                    QRCode = !string.IsNullOrEmpty(book.QRCode)
+                                ? $"{baseUrl}{book.QRCode}"
+                                : null,
+                };
+
+                return CreatedAtAction(nameof(GetBookById), new { id = book.Id }, bookDetails);
             }
             catch (Exception ex)
             {
@@ -97,57 +166,162 @@ namespace LibraryManagementSystem.API.Controllers
         [HttpPut("UpdateBook/{id}")]
         public async Task<IActionResult> UpdateBook(int id, UpdateBookDto bookDto)
         {
-            var book = await _context.Book.Include(b => b.BookCategories).FirstOrDefaultAsync(b => b.Id == id);
+            var book = await _context.Book.FirstOrDefaultAsync(b => b.Id == id);
             if (book == null)
                 return NotFound(new { Message = $"Book with id {id} not found" });
+
+            if (bookDto.RemoveImage && !string.IsNullOrEmpty(book.ProfileImage))
+            {
+                FileHelper.DeleteFile(book.ProfileImage);
+                book.ProfileImage = null;
+            }
+
+            if (bookDto.RemovePdf && !string.IsNullOrEmpty(book.PdfFileName))
+            {
+                FileHelper.DeleteFile(book.PdfFileName);
+                book.PdfFileName = null;
+            }
+
+            if (!string.IsNullOrEmpty(book.QRCode))
+            {
+                FileHelper.DeleteFile(book.QRCode);
+            }
+
+
             book.Name = bookDto.Name;
             book.Description = bookDto.Description;
             book.Price = bookDto.Price;
             book.Author = bookDto.Author;
-            book.Status = bookDto.Status;
+
             if (bookDto.Image != null)
             {
+                if (!string.IsNullOrEmpty(book.ProfileImage))
+                    FileHelper.DeleteFile(book.ProfileImage);
+
                 book.ProfileImage = await FileHelper.SaveFileAsync(bookDto.Image, "images");
             }
+
             if (bookDto.PdfFile != null)
             {
+                if (!string.IsNullOrEmpty(book.PdfFileName))
+                    FileHelper.DeleteFile(book.PdfFileName);
+
                 book.PdfFileName = await FileHelper.SaveFileAsync(bookDto.PdfFile, "pdfs");
             }
+
 
             _context.Book.Update(book);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            var baseUrl = $"{Request.Scheme}://{Request.Host.Value}/wwwroot";
+
+
+            var bookDetails = new BookDetailDTO
+            {
+                Id = book.Id,
+                Name = book.Name,
+                Description = book.Description,
+                Price = book.Price,
+                Author = book.Author,
+
+                BookCreationDate = book.BookCreationDate,
+                ImagePath = !string.IsNullOrEmpty(book.ProfileImage)
+                               ? $"{baseUrl}{book.ProfileImage}"
+                               : null,
+                PdfFilePath = !string.IsNullOrEmpty(book.PdfFileName)
+                               ? $"{baseUrl}{book.PdfFileName}"
+                               : null,
+                QRCode = !string.IsNullOrEmpty(book.QRCode)
+                               ? $"{baseUrl}{book.QRCode}"
+                               : null,
+            };
+
+            return CreatedAtAction(nameof(GetBookById), new { id = book.Id }, bookDetails);
         }
 
         [HttpPatch("PatchBook/{id}")]
         public async Task<IActionResult> PatchBook(int id, PatchBookDTO bookDto)
         {
-            var book = await _context.Book.Include(b => b.BookCategories).FirstOrDefaultAsync(b => b.Id == id);
+            var book = await _context.Book.FirstOrDefaultAsync(b => b.Id == id);
             if (book == null)
                 return NotFound(new { Message = $"Book with id {id} not found" });
+
+
+            if (bookDto.RemoveImage && !string.IsNullOrEmpty(book.ProfileImage))
+            {
+                FileHelper.DeleteFile(book.ProfileImage);
+                book.ProfileImage = null;
+            }
+            if (bookDto.RemovePdf && !string.IsNullOrEmpty(book.PdfFileName))
+            {
+                FileHelper.DeleteFile(book.PdfFileName);
+                book.PdfFileName = null;
+            }
+
+
+            if (!string.IsNullOrEmpty(book.QRCode))
+            {
+                FileHelper.DeleteFile(book.QRCode);
+            }
+
+
 
             if (bookDto.Name != null) book.Name = bookDto.Name;
             if (bookDto.Description != null) book.Description = bookDto.Description;
             if (bookDto.Price.HasValue) book.Price = bookDto.Price.Value;
             if (bookDto.Author != null) book.Author = bookDto.Author;
-            if (bookDto.Status.HasValue) book.Status = bookDto.Status.Value;
+
+
+
+            book.QRCode = FileHelper.GenerateQrCodeAsync(book.Name);
+
 
 
             if (bookDto.Image != null)
             {
+                if (!string.IsNullOrEmpty(book.ProfileImage))
+                    FileHelper.DeleteFile(book.ProfileImage);
+
                 book.ProfileImage = await FileHelper.SaveFileAsync(bookDto.Image, "images");
             }
+
             if (bookDto.PdfFile != null)
             {
+                if (!string.IsNullOrEmpty(book.PdfFileName))
+                    FileHelper.DeleteFile(book.PdfFileName);
+
                 book.PdfFileName = await FileHelper.SaveFileAsync(bookDto.PdfFile, "pdfs");
             }
 
+
             _context.Book.Update(book);
             await _context.SaveChangesAsync();
+            var baseUrl = $"{Request.Scheme}://{Request.Host.Value}/wwwroot";
 
-            return Ok(book);
+
+            var bookDetails = new BookDetailDTO
+            {
+                Id = book.Id,
+                Name = book.Name,
+                Description = book.Description,
+                Price = book.Price,
+                Author = book.Author,
+                Status = book.Status,
+                BookCreationDate = book.BookCreationDate,
+                ImagePath = !string.IsNullOrEmpty(book.ProfileImage)
+                               ? $"{baseUrl}{book.ProfileImage}"
+                               : null,
+                PdfFilePath = !string.IsNullOrEmpty(book.PdfFileName)
+                               ? $"{baseUrl}{book.PdfFileName}"
+                               : null,
+                QRCode = !string.IsNullOrEmpty(book.QRCode)
+                               ? $"{baseUrl}{book.QRCode}"
+                               : null,
+            };
+
+            return CreatedAtAction(nameof(GetBookById), new { id = book.Id }, bookDetails);
         }
+
         [HttpDelete("DeleteBookById/{id}")]
         public async Task<IActionResult> DeleteBookById(int id)
         {

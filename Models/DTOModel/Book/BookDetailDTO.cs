@@ -2,8 +2,10 @@
 
 namespace Models.DTOModel.Book
 {
-    public class UpdateBookDto
+    public class BookDetailDTO
     {
+
+        public int Id { get; set; }
         [Required]
         public string Name { get; set; }
         [Required]
@@ -13,11 +15,13 @@ namespace Models.DTOModel.Book
         [Required]
         public string Author { get; set; }
 
-        public IFormFile? Image { get; set; }
-        public IFormFile? PdfFile { get; set; }
-        public bool RemoveImage { get; set; } = false;
-        public bool RemovePdf { get; set; } = false;
+        public Status Status { get; set; }
+        public DateOnly BookCreationDate { get; set; }
 
+        public string? ImagePath { get; set; }
+        public string? PdfFilePath { get; set; }
 
+        [Required]
+        public string QRCode { get; set; }
     }
 }

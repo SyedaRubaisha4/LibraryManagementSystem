@@ -14,8 +14,5 @@ namespace Models.DTOModel.Book
         public string Author { get; set; }
         public IFormFile? Image { get; set; }
         public IFormFile? PdfFile { get; set; }
-
-        [Required]
-        public string QRCode { get; set; }
     }
 }
