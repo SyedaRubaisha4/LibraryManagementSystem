@@ -186,8 +186,6 @@ namespace LibraryManagementSystem.API.Controllers
             {
                 FileHelper.DeleteFile(book.QRCode);
             }
-
-
             book.Name = bookDto.Name;
             book.Description = bookDto.Description;
             book.Price = bookDto.Price;

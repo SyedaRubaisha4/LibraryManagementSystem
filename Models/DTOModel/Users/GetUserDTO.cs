@@ -4,6 +4,7 @@ namespace Models.DTOModel.Users
 {
     public class GetUserDTO
     {
+        public int Id { get; set; }
         [Required]
         public string FirstName { get; set; }
         [Required]

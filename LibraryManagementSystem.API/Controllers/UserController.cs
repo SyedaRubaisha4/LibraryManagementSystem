@@ -36,10 +36,10 @@ namespace LibraryManagementSystem.API.Controllers
             try
             {
                 var users = await _context.User.ToListAsync();
-                var userDtos = _mapper.Map<List<GetUserDTO>>(users);
                 var baseUrl = $"{Request.Scheme}://{Request.Host.Value}/wwwroot/UserImages/";
                 var getUser = users.Select(user => new GetUserDTO
                 {
+                    Id=user.Id,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     Email = user.Email,
@@ -123,18 +123,9 @@ namespace LibraryManagementSystem.API.Controllers
                 };
                 if (Image != null && Image.Length > 0)
                 {
-                    string uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "UserImages");
-                    Directory.CreateDirectory(uploadFolder);
+                   
+                    User.ProfileImage =await FileHelper.SaveFileAsync(Image, "UserImages");
 
-                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(Image.FileName);
-                    string filePath = Path.Combine(uploadFolder, uniqueFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        Image.CopyTo(fileStream);
-                    }
-
-                    User.ProfileImage = uniqueFileName;
                 }
                 _context.User.Add(User);
                 await _context.SaveChangesAsync();
@@ -177,15 +168,12 @@ namespace LibraryManagementSystem.API.Controllers
               
                 if (upadateUserDto.Image != null && upadateUserDto.Image.Length > 0)
                 {
-                    string uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "UserImages");
-                    Directory.CreateDirectory(uploadFolder);
-                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(upadateUserDto.Image.FileName);
-                    string filePath = Path.Combine(uploadFolder, uniqueFileName);
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        upadateUserDto.Image.CopyTo(fileStream);
-                    }
-                    user.ProfileImage = uniqueFileName;
+                   
+
+                    FileHelper.DeleteFile(user.ProfileImage);
+
+                    user.ProfileImage = await FileHelper.SaveFileAsync(upadateUserDto.Image, "UserImages");
+
                 }
             }
             user.ResetToken = user.ResetToken;
@@ -223,15 +211,11 @@ namespace LibraryManagementSystem.API.Controllers
             {
                 if (userpatchDto.Image != null && userpatchDto.Image.Length > 0)
                 {
-                    string uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "UserImages");
-                    Directory.CreateDirectory(uploadFolder);
-                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(userpatchDto.Image.FileName);
-                    string filePath = Path.Combine(uploadFolder, uniqueFileName);
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        userpatchDto.Image.CopyTo(fileStream);
-                    }
-                    user.ProfileImage = uniqueFileName;
+                  
+                    FileHelper.DeleteFile(user.ProfileImage);
+
+                    user.ProfileImage = await FileHelper.SaveFileAsync(userpatchDto.Image, "UserImages");
+
                 }
             }
            
